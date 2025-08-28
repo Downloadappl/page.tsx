@@ -1,0 +1,6083 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مكتبة عناصر UI العربية</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- إضافة Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    
+    <style>
+        :root {
+            --bg-primary: #000000;
+            --bg-secondary: #0a0a0a;
+            --text-primary: #e0e0e0;
+            --accent: #8B5CF6;
+            --header: #3B82F6;
+            --gradient-start: #1E3A8A;
+            --gradient-end: #EC4899;
+            --success: #10B981;
+            --danger: #EF4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* Blur Overlay */
+        .blur-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .blur-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Header Styles */
+        header {
+            background: var(--bg-secondary);
+            padding: 12px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 99;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            margin-left: 10px;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .menu-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            bottom: -100%;
+            left: 0;
+            width: 100%;
+            height: 60vh;
+            background: var(--bg-secondary);
+            z-index: 101;
+            transition: bottom 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            padding: 30px 20px 20px;
+            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .sidebar.open {
+            bottom: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header h3 {
+            font-size: 24px;
+            color: white;
+        }
+
+        .close-sidebar {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 28px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .close-sidebar:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(90deg);
+        }
+
+        .sidebar-categories {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .sidebar-categories li {
+            margin-bottom: 0;
+        }
+
+        .sidebar-categories a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 16px;
+            display: block;
+            padding: 15px 20px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-categories a:hover {
+            background: rgba(139, 92, 246, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .sidebar-categories a.active {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 40px 0;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.5);
+            margin-bottom: 30px;
+        }
+
+        .hero h1 {
+            font-size: 36px;
+            margin-bottom: 15px;
+            color: white;
+            background: linear-gradient(90deg, #8B5CF6, #EC4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 18px;
+            max-width: 800px;
+            margin: 0 auto 20px;
+            color: var(--text-primary);
+        }
+
+        /* Search Box */
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            display: flex;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px 0 0 8px;
+            background: var(--bg-secondary);
+            color: white;
+            font-size: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .search-btn {
+            padding: 0 20px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .search-btn:hover {
+            background: #7c3aed;
+        }
+
+        /* Elements Grid */
+        .elements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            padding: 20px 0;
+            margin-bottom: 80px;
+        }
+
+        .element-card {
+            background: rgba(20, 20, 20, 0.8);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .element-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+        }
+
+        .element-preview {
+            height: 180px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            background: rgba(10, 10, 10, 0.5);
+        }
+
+        .element-content {
+            padding: 20px;
+        }
+
+        .element-content h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .element-content p {
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            font-size: 15px;
+            height: 60px;
+            overflow: hidden;
+        }
+
+        .element-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .tag {
+            background: rgba(139, 92, 246, 0.2);
+            color: var(--accent);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+
+        .element-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #7c3aed;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        /* Add Button */
+        .add-button {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 99;
+            transition: all 0.3s ease;
+        }
+
+        .add-button:hover {
+            transform: scale(1.1);
+            background: #7c3aed;
+        }
+
+        /* Modal Base Styles */
+        .modal {
+            display: flex;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .modal-content {
+            background: var(--bg-primary);
+            padding: 40px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transform: scale(0.9);
+            opacity: 0;
+            animation: modalAppear 0.3s ease forwards;
+        }
+
+        @keyframes modalAppear {
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-header h2 {
+            color: white;
+            font-size: 28px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 28px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(90deg);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(30, 30, 30, 0.8);
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--accent);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Upload Modal Specific Styles */
+        .upload-modal {
+            display: none;
+        }
+
+        .upload-content {
+            background: var(--bg-primary);
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transform: scale(0.9);
+            opacity: 0;
+            animation: modalAppear 0.3s ease forwards;
+        }
+
+        /* Code Modal */
+        .code-modal {
+            display: none;
+        }
+
+        .code-content {
+            background: var(--bg-primary);
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transform: scale(0.9);
+            opacity: 0;
+            animation: modalAppear 0.3s ease forwards;
+        }
+
+        .back-button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .back-button:hover {
+            background: #7c3aed;
+            transform: translateY(-2px);
+        }
+
+        pre {
+            background: #0a0a0a;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            color: #D1D5DB;
+            font-family: 'Courier New', monospace;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin: 15px 0;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: var(--success);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            display: none;
+            animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s forwards;
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes toastOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+            
+            .hero h1 {
+                font-size: 28px;
+            }
+            
+            .hero p {
+                font-size: 16px;
+            }
+            
+            .elements-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content, .upload-content, .code-content {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .element-actions {
+                flex-direction: column;
+            }
+            
+            .add-button {
+                bottom: 20px;
+                left: 20px;
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+
+            .sidebar {
+                height: 70vh;
+                padding: 20px 15px 15px;
+            }
+
+            .sidebar-categories {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-state i {
+            font-size: 40px;
+            margin-bottom: 20px;
+            color: var(--accent);
+            animation: spin 1s linear infinite;
+        }
+
+        .error-state {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .error-state i {
+            font-size: 40px;
+            margin-bottom: 20px;
+            color: var(--danger);
+        }
+
+        .retry-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .retry-btn:hover {
+            background: #7c3aed;
+        }
+
+        .code-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .code-header h3 {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .code-header p {
+            color: var(--text-primary);
+            font-size: 16px;
+        }
+
+        .element-meta {
+            display: flex;
+            gap: 15px;
+            color: var(--text-primary);
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .element-meta i {
+            margin-left: 5px;
+            color: var(--accent);
+        }
+
+        .code-section {
+            margin-bottom: 25px;
+        }
+
+        .code-header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .code-header-section h4 {
+            color: var(--accent);
+            font-size: 18px;
+        }
+
+        .copy-btn {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        pre code {
+            display: block;
+            padding: 15px;
+            background: #1a1a1a;
+            border-radius: 8px;
+            overflow-x: auto;
+            color: #D1D5DB;
+            font-family: 'Courier New', monospace;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .code-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .like-btn, .download-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .like-btn:hover, .download-btn:hover {
+            background: #7c3aed;
+        }
+        
+        /* منع تحديد النصوص */
+body {
+    user-select: none;       /* القياسي */
+    -webkit-user-select: none; /* كروم، سفاري، أوبرا */
+    -moz-user-select: none;   /* فايرفوكس */
+    -ms-user-select: none;    /* إنترنت إكسبلورر */
+}
+.extended-menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    min-width: 180px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    margin: 15px auto;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(106, 17, 203, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.extended-menu-btn:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #2575fc 0%, #6a11cb 100%);
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 1;
+}
+
+.extended-menu-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(106, 17, 203, 0.4);
+}
+
+.extended-menu-btn:hover:before {
+    opacity: 1;
+}
+
+.extended-menu-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(106, 17, 203, 0.3);
+}
+
+.extended-menu-btn i {
+    margin-left: 10px;
+    position: relative;
+    z-index: 2;
+}
+
+.extended-menu-btn span {
+    position: relative;
+    z-index: 2;
+}
+    </style>
+</head>
+<body>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Blur Overlay -->
+    <div class="blur-overlay" id="blurOverlay"></div>
+
+<!-- Header -->
+<header>
+    <div class="container">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-palette"></i>
+                <span>عناصر UI</span>
+            </div>
+            
+            <!-- تم إزالة زر القائمة من هنا -->
+        </div>
+    </div>
+    <hr>
+</header>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>الأقسام</h3>
+            <button class="close-sidebar" id="closeSidebar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <ul class="sidebar-categories">
+            <li><a href="#" class="active" data-category="all">الكل</a></li>
+            <li><a href="#" data-category="buttons">أزرار</a></li>
+            <li><a href="#" data-category="cards">بطاقات</a></li>
+            <li><a href="#" data-category="loaders">أدوات التحميل</a></li>
+            <li><a href="#" data-category="inputs">حقول الإدخال</a></li>
+            <li><a href="#" data-category="nav">أشرطة التنقل</a></li>
+            <li><a href="#" data-category="effects">تأثيرات</a></li>
+        </ul>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        
+            <h1>عناصر واجهة المستخدم باللغة العربية</h1>
+            <p>اكتشف مجموعة رائعة من عناصر واجهة المستخدم الجاهزة للاستخدام في مشاريعك. نسخ العناصر بنقرة واحدة!</p>
+        
+    </section>
+
+<!-- Search Box -->
+<div class="container">
+    <div class="search-container">
+        <div class="search-box">
+            <input type="text" class="search-input" id="searchInput" placeholder="ابحث عن عنصر...">
+            <button class="search-btn">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- الزر الممتد مع أيقونة القائمة -->
+    <button class="extended-menu-btn" id="menuToggle">
+    <i class="fas fa-bars"></i>
+    <span>عرض الأقسام</span>
+</button>
+</div>
+
+    <!-- Elements Grid -->
+    <div class="container">
+        <div class="elements-grid" id="elementsGrid">
+            <!-- Elements will be loaded here dynamically -->
+        </div>
+    </div>
+
+    <!-- Add Button -->
+    <button class="add-button" id="addButton" style="display: none;">
+        <i class="fas fa-plus"></i>
+    </button>
+
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>مرحباً بك في مكتبة العناصر!</h2>
+                <button class="close-modal" onclick="closeLoginModal()">&times;</button>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">اسم المستخدم</label>
+                    <input type="text" id="username" placeholder="أدخل اسم المستخدم" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 18px;">متابعة</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Upload Modal -->
+    <div class="modal upload-modal" id="uploadModal">
+        <div class="upload-content">
+            <div class="modal-header">
+                <h2>إضافة عنصر جديد</h2>
+                <button class="close-modal" id="closeUploadModal">&times;</button>
+            </div>
+            <form id="elementForm">
+                <div class="form-group">
+                    <label for="elementName">اسم العنصر *</label>
+                    <input type="text" id="elementName" placeholder="مثال: زر متحرك" required>
+                </div>
+                <div class="form-group">
+                    <label for="elementDescription">وصف العنصر *</label>
+                    <textarea id="elementDescription" placeholder="وصف مختصر للعنصر وكيفية استخدامه" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="elementCategory">التصنيف *</label>
+                    <select id="elementCategory" required>
+                        <option value="">اختر التصنيف</option>
+                        <option value="buttons">أزرار</option>
+                        <option value="cards">بطاقات</option>
+                        <option value="loaders">أدوات التحميل</option>
+                        <option value="inputs">حقول الإدخال</option>
+                        <option value="nav">أشرطة التنقل</option>
+                        <option value="effects">تأثيرات</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="elementCode">كود HTML *</label>
+                    <textarea id="elementCode" placeholder='<button class="my-button">زر جميل</button>' required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="elementCSS">كود CSS *</label>
+                    <textarea id="elementCSS" placeholder='.my-button { 
+    background: #8B5CF6; 
+    color: white; 
+    padding: 10px 20px; 
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}' required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 18px;">
+                    <i class="fas fa-cloud-upload-alt"></i> نشر العنصر
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Code Modal -->
+    <div class="modal code-modal" id="codeModal">
+        <div class="code-content">
+            <div class="modal-header">
+                <h2>كود العنصر</h2>
+                <button class="back-button" id="closeCodeModal">
+                    <i class="fas fa-arrow-left"></i> عودة
+                </button>
+            </div>
+            <div id="previewContainer" style="margin-bottom: 20px; padding: 20px; background: #1a1a1a; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1);"></div>
+            <div id="codeContent"></div>
+            <button class="btn btn-primary" id="copyCodeButton" style="margin-top: 20px; width: 100%;">
+                <i class="fas fa-copy"></i> نسخ الكود
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">تم نسخ الكود بنجاح!</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyBXZ8wXkN1R2DOjinoYFrX-7xd1grdatOs",
+        authDomain: "ali-akaad.firebaseapp.com",
+        projectId: "ali-akaad",
+        storageBucket: "ali-akaad.appspot.com",
+        messagingSenderId: "806404765627",
+        appId: "1:806404765627:web:287cae0c0c004bfae0369e",
+        measurementId: "G-5YG0RJ3KT4"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+
+    // DOM Elements
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const closeSidebar = document.getElementById('closeSidebar');
+    const blurOverlay = document.getElementById('blurOverlay');
+    const loginModal = document.getElementById('loginModal');
+    const loginForm = document.getElementById('loginForm');
+    const usernameInput = document.getElementById('username');
+    const elementsGrid = document.getElementById('elementsGrid');
+    const searchInput = document.getElementById('searchInput');
+    const codeModal = document.getElementById('codeModal');
+    const codeContent = document.getElementById('codeContent');
+    const previewContainer = document.getElementById('previewContainer');
+    const closeCodeModal = document.getElementById('closeCodeModal');
+    const copyCodeButton = document.getElementById('copyCodeButton');
+    const toast = document.getElementById('toast');
+    const categoryLinks = document.querySelectorAll('.sidebar-categories a');
+    const addButton = document.getElementById('addButton');
+    const uploadModal = document.getElementById('uploadModal');
+    const elementForm = document.getElementById('elementForm');
+    const closeUploadModal = document.getElementById('closeUploadModal');
+
+    // Current user state
+    let currentUser = null;
+    let currentCategory = 'all';
+    let currentElements = [];
+
+    // Sample elements data (local fallback)
+    const sampleElements = [
+        {
+    
+        id: '1',
+        name: 'زر متحرك',
+        description: 'زر جميل مع تأثيرات عند التمرير',
+        category: 'buttons',
+        html: '<button class="animated-button">انقر هنا</button>',
+        css: `.animated-button {
+    background: linear-gradient(90deg, #8B5CF6, #EC4899);
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+.animated-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '2',
+        name: 'زر شفاف',
+        description: 'زر بأناقة مع خلفية شفافة',
+        category: 'buttons',
+        html: '<button class="glass-button">زر شفاف</button>',
+        css: `.glass-button {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 12px 24px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+.glass-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '3',
+        name: 'زر دائري',
+        description: 'زر بدائرة ظلية جميلة',
+        category: 'buttons',
+        html: '<button class="circle-button">+</button>',
+        css: `.circle-button {
+    background: linear-gradient(135deg, #8B5CF6, #EC4899);
+    color: white;
+    width: 60px;
+    height: 60px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 24px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.circle-button:hover {
+    transform: scale(1.1) rotate(90deg);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '4',
+        name: 'زر متوهج',
+        description: 'زر مع توهج أنيق عند التمرير',
+        category: 'buttons',
+        html: '<button class="glow-button">زر متوهج</button>',
+        css: `.glow-button {
+    background: #0f0c29;
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+.glow-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, #8B5CF6, #EC4899, #8B5CF6);
+    border-radius: 8px;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.glow-button:hover::before {
+    opacity: 1;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '5',
+        name: 'زر حدود متحركة',
+        description: 'زر بحدود متحركة وجذابة',
+        category: 'buttons',
+        html: '<button class="border-button">زر الحدود</button>',
+        css: `.border-button {
+    background: transparent;
+    color: #8B5CF6;
+    padding: 12px 30px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    position: relative;
+    transition: all 0.3s ease;
+}
+.border-button::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #8B5CF6, #EC4899, #8B5CF6);
+    border-radius: 8px;
+    z-index: -1;
+    background-size: 400%;
+    animation: border-flow 3s linear infinite;
+}
+@keyframes border-flow {
+    0% { background-position: 0 0; }
+    50% { background-position: 100% 0; }
+    100% { background-position: 0 0; }
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '6',
+        name: 'زر ثلاثي الأبعاد',
+        description: 'زر بظل ثلاثي الأبعاد',
+        category: 'buttons',
+        html: '<button class="three-d-button">زر 3D</button>',
+        css: `.three-d-button {
+    background: #8B5CF6;
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 0 #6D28D9, 0 8px 10px rgba(0, 0, 0, 0.2);
+    position: relative;
+    top: 0;
+}
+.three-d-button:hover {
+    top: 2px;
+    box-shadow: 0 3px 0 #6D28D9, 0 5px 8px rgba(0, 0, 0, 0.2);
+}
+.three-d-button:active {
+    top: 5px;
+    box-shadow: 0 0 0 #6D28D9, 0 2px 5px rgba(0, 0, 0, 0.2);
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '7',
+        name: 'زر انزلاقي',
+        description: 'زر بتأثير انزلاقي عند التمرير',
+        category: 'buttons',
+        html: '<button class="slide-button"><span>زر انزلاقي</span></button>',
+        css: `.slide-button {
+    background: transparent;
+    color: white;
+    padding: 12px 30px;
+    border: 2px solid #8B5CF6;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+.slide-button span {
+    position: relative;
+    z-index: 1;
+}
+.slide-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: #8B5CF6;
+    transition: all 0.3s ease;
+    z-index: 0;
+}
+.slide-button:hover::before {
+    left: 0;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '8',
+        name: 'زر مملوء',
+        description: 'زر بتأثير ملء عند التمرير',
+        category: 'buttons',
+        html: '<button class="fill-button">زر مملوء</button>',
+        css: `.fill-button {
+    background: transparent;
+    color: #8B5CF6;
+    padding: 12px 30px;
+    border: 2px solid #8B5CF6;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    z-index: 1;
+}
+.fill-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 100%;
+    background: #8B5CF6;
+    transition: all 0.3s ease;
+    z-index: -1;
+}
+.fill-button:hover {
+    color: white;
+}
+.fill-button:hover::before {
+    width: 100%;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '9',
+        name: 'زر نيون',
+        description: 'زر بتأثير ضوء النيون',
+        category: 'buttons',
+        html: '<button class="neon-button">زر نيون</button>',
+        css: `.neon-button {
+    background: transparent;
+    color: #fff;
+    padding: 12px 30px;
+    border: 2px solid #8B5CF6;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    text-shadow: 0 0 5px #8B5CF6, 0 0 10px #8B5CF6, 0 0 20px #8B5CF6;
+    box-shadow: 0 0 5px #8B5CF6, inset 0 0 5px #8B5CF6;
+}
+.neon-button:hover {
+    background: #8B5CF6;
+    color: #fff;
+    box-shadow: 0 0 20px #8B5CF6, 0 0 40px #8B5CF6, 0 0 80px #8B5CF6;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '10',
+        name: 'زر مزدوج اللون',
+        description: 'زر بتدرج لوني مزدوج',
+        category: 'buttons',
+        html: '<button class="dual-color-button">زر مزدوج</button>',
+        css: `.dual-color-button {
+    background: linear-gradient(to right, #8B5CF6 50%, #EC4899 50%);
+    background-size: 200% 100%;
+    background-position: right bottom;
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+.dual-color-button:hover {
+    background-position: left bottom;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '11',
+        name: 'زر مع أيقونة',
+        description: 'زر يتضمن أيقونة مع النص',
+        category: 'buttons',
+        html: '<button class="icon-button"><span>⚡</span> زر سريع</button>',
+        css: `.icon-button {
+    background: linear-gradient(135deg, #8B5CF6, #EC4899);
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.icon-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+}
+.icon-button span {
+    font-size: 18px;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '12',
+        name: 'زر كبير',
+        description: 'زر بحجم كبير لاستخدامات خاصة',
+        category: 'buttons',
+        html: '<button class="big-button">زر كبير</button>',
+        css: `.big-button {
+    background: linear-gradient(135deg, #8B5CF6, #EC4899);
+    color: white;
+    padding: 20px 40px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 25px rgba(139, 92, 246, 0.3);
+}
+.big-button:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.5);
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '13',
+        name: 'زر صغير',
+        description: 'زر بحجم صغير للاستخدام في المساحات الضيقة',
+        category: 'buttons',
+        html: '<button class="small-button">زر صغير</button>',
+        css: `.small-button {
+    background: linear-gradient(135deg, #8B5CF6, #EC4899);
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+.small-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '14',
+        name: 'زر دائري مع أيقونة',
+        description: 'زر دائري يتضمن أيقونة فقط',
+        category: 'buttons',
+        html: '<button class="circle-icon-button">❤</button>',
+        css: `.circle-icon-button {
+    background: linear-gradient(135deg, #8B5CF6, #EC4899);
+    color: white;
+    width: 50px;
+    height: 50px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+    transition: all 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+.circle-icon-button:hover {
+    transform: scale(1.1) rotate(10deg);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '15',
+        name: 'زر متعدد الألوان',
+        description: 'زر يتغير لونه عند التمرير',
+        category: 'buttons',
+        html: '<button class="color-change-button">زر متعدد الألوان</button>',
+        css: `.color-change-button {
+    background: #8B5CF6;
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+.color-change-button:hover {
+    background: #EC4899;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4);
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+
+    // بطاقات (15 عنصر)
+    {
+        id: '16',
+        name: 'بطاقة منتج',
+        description: 'بطاقة عرض منتج بتصميم عصري',
+        category: 'cards',
+        html: `<div class="product-card">
+    <div class="product-image">
+        <img src="https://via.placeholder.com/300x200/8B5CF6/FFFFFF?text=صورة+المنتج" alt="Product">
+    </div>
+    <div class="product-info">
+        <h3>اسم المنتج</h3>
+        <p>وصف مختصر للمنتج يظهر هنا</p>
+        <div class="product-price">50 ر.س</div>
+        <button class="add-to-cart">أضف إلى السلة</button>
+    </div>
+</div>`,
+        css: `.product-card {
+    background: rgba(20, 20, 20, 0.8);
+    border-radius: 12px;
+    overflow: hidden;
+    width: 300px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.product-image img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+.product-info {
+    padding: 20px;
+}
+.product-info h3 {
+    margin-bottom: 10px;
+    color: white;
+}
+.product-info p {
+    color: #e0e0e0;
+    margin-bottom: 15px;
+}
+.product-price {
+    font-size: 20px;
+    font-weight: bold;
+    color: #8B5CF6;
+    margin-bottom: 15px;
+}
+.add-to-cart {
+    background: #8B5CF6;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    font-weight: bold;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '17',
+        name: 'بطاقة ملف شخصي',
+        description: 'بطاقة لعرض الملف الشخصي',
+        category: 'cards',
+        html: `<div class="profile-card">
+    <div class="profile-header">
+        <img src="https://via.placeholder.com/100x100/8B5CF6/FFFFFF?text=ص" alt="Profile" class="profile-img">
+        <h3>اسم المستخدم</h3>
+        <p>مطور واجهات أمامية</p>
+    </div>
+    <div class="profile-stats">
+        <div class="stat">
+            <span class="stat-number">120</span>
+            <span class="stat-label">مشروع</span>
+        </div>
+        <div class="stat">
+            <span class="stat-number">2.5K</span>
+            <span class="stat-label">متابع</span>
+        </div>
+        <div class="stat">
+            <span class="stat-number">350</span>
+            <span class="stat-label">متابَع</span>
+        </div>
+    </div>
+    <button class="profile-button">متابعة</button>
+</div>`,
+        css: `.profile-card {
+    background: rgba(20, 20, 20, 0.8);
+    border-radius: 12px;
+    overflow: hidden;
+    width: 280px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+    padding: 20px;
+}
+.profile-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 2px solid #8B5CF6;
+}
+.profile-header h3 {
+    color: white;
+    margin-bottom: 5px;
+}
+.profile-header p {
+    color: #e0e0e0;
+    margin-bottom: 20px;
+}
+.profile-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 20px;
+}
+.stat {
+    display: flex;
+    flex-direction: column;
+}
+.stat-number {
+    font-size: 18px;
+    font-weight: bold;
+    color: #8B5CF6;
+}
+.stat-label {
+    font-size: 12px;
+    color: #e0e0e0;
+}
+.profile-button {
+    background: #8B5CF6;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    font-weight: bold;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '18',
+        name: 'بطاقة خدمة',
+        description: 'بطاقة لعرض الخدمات المقدمة',
+        category: 'cards',
+        html: `<div class="service-card">
+    <div class="service-icon">💻</div>
+    <h3>تصميم واجهات</h3>
+    <p>تصميم واجهات مستخدم جذابة وسهلة الاستخدام بتقنيات حديثة.</p>
+    <a href="#" class="service-link">اطلب الآن</a>
+</div>`,
+        css: `.service-card {
+    background: rgba(20, 20, 20, 0.8);
+    border-radius: 12px;
+    width: 250px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+    padding: 30px 20px;
+    transition: transform 0.3s ease;
+}
+.service-card:hover {
+    transform: translateY(-5px);
+}
+.service-icon {
+    font-size: 40px;
+    margin-bottom: 15px;
+}
+.service-card h3 {
+    color: white;
+    margin-bottom: 15px;
+}
+.service-card p {
+    color: #e0e0e0;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+.service-link {
+    color: #8B5CF6;
+    text-decoration: none;
+    font-weight: bold;
+    position: relative;
+}
+.service-link::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #8B5CF6;
+    transition: width 0.3s ease;
+}
+.service-link:hover::after {
+    width: 100%;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '19',
+        name: 'بطاقة إحصائية',
+        description: 'بطاقة لعرض الإحصائيات والأرقام',
+        category: 'cards',
+        html: `<div class="stats-card">
+    <h3>إحصائيات الموقع</h3>
+    <div class="stats-number">2,845</div>
+    <div class="stats-label">زائر اليوم</div>
+    <div class="stats-progress">
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 75%"></div>
+        </div>
+        <div class="progress-text">75% زيادة عن الأمس</div>
+    </div>
+</div>`,
+        css: `.stats-card {
+    background: rgba(20, 20, 20, 0.8);
+    border-radius: 12px;
+    width: 250px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 25px;
+}
+.stats-card h3 {
+    color: white;
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+.stats-number {
+    font-size: 32px;
+    font-weight: bold;
+    color: #8B5CF6;
+    margin-bottom: 5px;
+}
+.stats-label {
+    color: #e0e0e0;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+.progress-bar {
+    background: rgba(255, 255, 255, 0.1);
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+.progress-fill {
+    background: linear-gradient(90deg, #8B5CF6, #EC4899);
+    height: 100%;
+    border-radius: 4px;
+}
+.progress-text {
+    color: #8B5CF6;
+    font-size: 12px;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '20',
+        name: 'بطاقة فريق العمل',
+        description: 'بطاقة لعرض معلومات عضو الفريق',
+        category: 'cards',
+        html: `<div class="team-card">
+    <img src="https://via.placeholder.com/150x150/8B5CF6/FFFFFF?text=ص" alt="Team Member" class="team-img">
+    <h3>أحمد محمد</h3>
+    <p class="team-role">مصمم واجهات</p>
+    <p class="team-desc">مصمم واجهات مستخدم محترف مع أكثر من 5 سنوات خبرة.</p>
+    <div class="team-social">
+        <a href="#" class="social-link">📱</a>
+        <a href="#" class="social-link">💼</a>
+        <a href="#" class="social-link">🐦</a>
+    </div>
+</div>`,
+        css: `.team-card {
+    background: rgba(20, 20, 20, 0.8);
+    border-radius: 12px;
+    width: 220px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+    padding: 25px 20px;
+    transition: transform 0.3s ease;
+}
+.team-card:hover {
+    transform: translateY(-5px);
+}
+.team-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 2px solid #8B5CF6;
+}
+.team-card h3 {
+    color: white;
+    margin-bottom: 5px;
+}
+.team-role {
+    color: #8B5CF6;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+.team-desc {
+    color: #e0e0e0;
+    margin-bottom: 20px;
+    font-size: 13px;
+}
+.team-social {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+.social-link {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    transition: color 0.3s ease;
+}
+.social-link:hover {
+    color: #8B5CF6;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '21',
+        name: 'بطاقة تسعير',
+        description: 'بطاقة لعرض باقات التسعير',
+        category: 'cards',
+        html: `<div class="pricing-card">
+    <div class="pricing-header">
+        <h3>الباقة الأساسية</h3>
+        <div class="price">50 ر.س <span>/شهر</span></div>
+    </div>
+    <ul class="pricing-features">
+        <li>✅ 5 مشاريع</li>
+        <li>✅ 10 GB مساحة</li>
+        <li>✅ دعم فني</li>
+        <li>❌ نطاق مخصص</li>
+        <li>❌ SSL مجاني</li>
+    </ul>
+    <button class="pricing-button">اشترك الآن</button>
+</div>`,
+        css: `.pricing-card {
+    background: rgba(20, 20, 20, 0.8);
+    border-radius: 12px;
+    width: 250px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+    padding: 30px 25px;
+    transition: transform 0.3s ease;
+}
+.pricing-card:hover {
+    transform: translateY(-5px);
+}
+.pricing-header {
+    margin-bottom: 25px;
+}
+.pricing-header h3 {
+    color: white;
+    margin-bottom: 15px;
+}
+.price {
+    font-size: 28px;
+    font-weight: bold;
+    color: #8B5CF6;
+}
+.price span {
+    font-size: 14px;
+    color: #e0e0e0;
+    font-weight: normal;
+}
+.pricing-features {
+    list-style: none;
+    margin-bottom: 25px;
+    text-align: right;
+}
+.pricing-features li {
+    color: #e0e0e0;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+.pricing-button {
+    background: #8B5CF6;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+.pricing-button:hover {
+    background: #7C3AED;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '22',
+        name: 'بطاقة بلوج',
+        description: 'بطاقة لعرض مقالات المدونة',
+        category: 'cards',
+        html: `<div class="blog-card">
+    <div class="blog-image">
+        <img src="https://via.placeholder.com/300x200/8B5CF6/FFFFFF?text=صورة+المقال" alt="Blog Image">
+    </div>
+    <div class="blog-content">
+        <span class="blog-date">15 يناير 2023</span>
+        <h3>عنوان المقال يظهر هنا</h3>
+        <p>وصف مختصر للمقال يظهر في هذا المكان مع جزء من النص...</p>
+        <a href="#" class="blog-link">قراءة المزيد</a>
+    </div>
+</div>`,
+        css: `.blog-card {
+    background: rgba(20, 20, 20, 0.8);
+    border-radius: 12px;
+    overflow: hidden;
+    width: 300px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s ease;
+}
+.blog-card:hover {
+    transform: translateY(-5px);
+}
+.blog-image img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+}
+.blog-content {
+    padding: 20px;
+}
+.blog-date {
+    color: #8B5CF6;
+    font-size: 12px;
+    margin-bottom: 10px;
+    display: block;
+}
+.blog-content h3 {
+    color: white;
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+.blog-content p {
+    color: #e0e0e0;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+.blog-link {
+    color: #8B5CF6;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 14px;
+    position: relative;
+}
+.blog-link::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #8B5CF6;
+    transition: width 0.3s ease;
+}
+.blog-link:hover::after {
+    width: 100%;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '23',
+        name: 'بطاقة testimonial',
+        description: 'بطاقة لعرض آراء العملاء',
+        category: 'cards',
+        html: `<div class="testimonial-card">
+    <div class="testimonial-text">
+        <p>"هذا أفضل موقع تعاملت معه على الإطلاق، الخدمة كانت ممتازة والنتائج رائعة!"</p>
+    </div>
+    <div class="testimonial-author">
+        <img src="https://via.placeholder.com/50x50/8B5CF6/FFFFFF?text=م" alt="Client" class="author-img">
+        <div class="author-info">
+            <h4>محمد أحمد</h4>
+            <p>مدير شركة التقنية</p>
+        </div>
+    </div>
+</div>`,
+        css: `.testimonial-card {
+    background: rgba(20, 20, 20, 0.8);
+    border-radius: 12px;
+    width: 300px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 25px;
+}
+.testimonial-text {
+    margin-bottom: 20px;
+}
+.testimonial-text p {
+    color: #e0e0e0;
+    font-style: italic;
+    line-height: 1.6;
+}
+.testimonial-author {
+    display: flex;
+    align-items: center;
+}
+.author-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-left: 15px;
+    border: 2px solid #8B5CF6;
+}
+.author-info h4 {
+    color: white;
+    margin-bottom: 5px;
+    font-size: 16px;
+}
+.author-info p {
+    color: #8B5CF6;
+    font-size: 14px;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '24',
+        name: 'بطاقة حالة الطقس',
+        description: 'بطاقة لعرض حالة الطقس',
+        category: 'cards',
+        html: `<div class="weather-card">
+    <div class="weather-header">
+        <h3>الطقس اليوم</h3>
+        <div class="weather-location">الرياض, السعودية</div>
+    </div>
+    <div class="weather-info">
+        <div class="weather-temp">28°</div>
+        <div class="weather-icon">☀️</div>
+    </div>
+    <div class="weather-details">
+        <div class="detail">
+            <span>الرطوبة</span>
+            <span>35%</span>
+        </div>
+        <div class="detail">
+            <span>الرياح</span>
+            <span>10 km/h</span>
+        </div>
+    </div>
+</div>`,
+        css: `.weather-card {
+    background: rgba(20, 20, 20, 0.8);
+    border-radius: 12px;
+    width: 250px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 25px;
+}
+.weather-header {
+    margin-bottom: 20px;
+    text-align: center;
+}
+.weather-header h3 {
+    color: white;
+    margin-bottom: 5px;
+}
+.weather-location {
+    color: #8B5CF6;
+    font-size: 14px;
+}
+.weather-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+.weather-temp {
+    font-size: 42px;
+    font-weight: bold;
+    color: white;
+}
+.weather-icon {
+    font-size: 40px;
+}
+.weather-details {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 20px;
+}
+.detail {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+.detail span:first-child {
+    color: #e0e0e0;
+}
+.detail span:last-child {
+    color: white;
+    font-weight: bold;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '25',
+        name: 'بطاقة إشعار',
+        description: 'بطاقة لعرض الإشعارات والتنبيهات',
+        category: 'cards',
+        html: `<div class="notification-card">
+    <div class="notification-header">
+        <div class="notification-icon">🔔</div>
+        <h3>إشعار جديد</h3>
+    </div>
+    <p>لديك رسالة جديدة من أحمد محمد. اضغط هنا لقراءتها.</p>
+    <div class="notification-time">منذ 5 دقائق</div>
+</div>`,
+        css: `.notification-card {
+    background: rgba(20, 20, 20, 0.8);
+    border-radius: 12px;
+    width: 280px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-right: 4px solid #8B5CF6;
+}
+.notification-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+.notification-icon {
+    font-size: 20px;
+    margin-left: 10px;
+}
+.notification-header h3 {
+    color: white;
+    font-size: 16px;
+}
+.notification-card p {
+    color: #e0e0e0;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+.notification-time {
+    color: #8B5CF6;
+    font-size: 12px;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '26',
+        name: 'بطاقة Social Media',
+        description: 'بطاقة لعرض إحصائيات وسائل التواصل',
+        category: 'cards',
+        html: `<div class="social-card">
+    <div class="social-header">
+        <div class="social-icon">📱</div>
+        <h3>إنستغرام</h3>
+    </div>
+    <div class="social-stats">
+        <div class="stat">
+            <div class="stat-number">24.5K</div>
+            <div class="stat-label">متابعين</div>
+        </div>
+        <div class="stat">
+            <div class="stat-number">1.2K</div>
+            <div class="stat-label">متابَع</div>
+        </div>
+        <div class="stat">
+            <div class="stat-number">345</div>
+            <div class="stat-label">منشورات</div>
+        </div>
+    </div>
+    <button class="social-button">عرض الحساب</button>
+</div>`,
+        css: `.social-card {
+    background: rgba(20, 20, 20, 0.8);
+    border-radius: 12px;
+    width: 220px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    text-align: center;
+}
+.social-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+.social-icon {
+    font-size: 24px;
+    margin-left: 10px;
+}
+.social-header h3 {
+    color: white;
+    font-size: 18px;
+}
+.social-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 20px;
+}
+.stat {
+    display: flex;
+    flex-direction: column;
+}
+.stat-number {
+    font-size: 16px;
+    font-weight: bold;
+    color: #8B5CF6;
+    margin-bottom: 5px;
+}
+.stat-label {
+    font-size: 12px;
+    color: #e0e0e0;
+}
+.social-button {
+    background: #8B5CF6;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 100%;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+.social-button:hover {
+    background: #7C3AED;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '27',
+        name: 'بطاقة حالة الطلب',
+        description: 'بطاقة لمتابعة حالة الطلب',
+        category: 'cards',
+        html: `<div class="order-card">
+    <div class="order-header">
+        <h3>طلب #12345</h3>
+        <span class="order-status">قيد التجهيز</span>
+    </div>
+    <div class="order-details">
+        <div class="detail">
+            <span>التاريخ:</span>
+            <span>15/01/2023</span>
+        </div>
+        <div class="detail">
+            <span>المجموع:</span>
+            <span>250 ر.س</span>
+        </div>
+        <div class="detail">
+            <span>طريقة الدفع:</span>
+            <span>بطاقة ائتمان</span>
+        </div>
+    </div>
+    <div class="order-progress">
+        <div class="progress-step active">
+            <div class="step-icon">✓</div>
+            <span class="step-label">تم الطلب</span>
+        </div>
+        <div class="progress-step active">
+            <div class="step-icon">✓</div>
+            <span class="step-label">قيد التجهيز</span>
+        </div>
+        <div class="progress-step">
+            <div class="step-icon">3</div>
+            <span class="step-label">الشحن</span>
+        </div>
+        <div class="progress-step">
+            <div class="step-icon">4</div>
+            <span class="step-label">التسليم</span>
+        </div>
+    </div>
+</div>`,
+        css: `.order-card {
+    background: rgba(20, 20, 20, 0.8);
+    border-radius: 12px;
+    width: 320px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 25px;
+}
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.order-header h3 {
+    color: white;
+    font-size: 18px;
+}
+.order-status {
+    background: #F59E0B;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+}
+.order-details {
+    margin-bottom: 25px;
+}
+.detail {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+.detail span:first-child {
+    color: #e0e0e0;
+}
+.detail span:last-child {
+    color: white;
+    font-weight: bold;
+}
+.order-progress {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+}
+.order-progress::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    z-index: 1;
+}
+.progress-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+}
+.step-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 5px;
+    font-size: 12px;
+    color: #e0e0e0;
+}
+.progress-step.active .step-icon {
+    background: #8B5CF6;
+    color: white;
+}
+.step-label {
+    font-size: 10px;
+    color: #e0e0e0;
+    text-align: center;
+}
+.progress-step.active .step-label {
+    color: #8B5CF6;
+    font-weight: bold;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '28',
+        name: 'بطاقة Countdown',
+        description: 'بطاقة عرض العد التنازلي',
+        category: 'cards',
+        html: `<div class="countdown-card">
+    <h3>العرض ينتهي خلال:</h3>
+    <div class="countdown-timer">
+        <div class="time-unit">
+            <div class="time-value">02</div>
+            <div class="time-label">أيام</div>
+        </div>
+        <div class="time-unit">
+            <div class="time-value">12</div>
+            <div class="time-label">ساعات</div>
+        </div>
+        <div class="time-unit">
+            <div class="time-value">45</div>
+            <div class="time-label">دقائق</div>
+        </div>
+        <div class="time-unit">
+            <div class="time-value">30</div>
+            <div class="time-label">ثواني</div>
+        </div>
+    </div>
+    <button class="countdown-button">اطلب الآن</button>
+</div>`,
+        css: `.countdown-card {
+    background: rgba(20, 20, 20, 0.8);
+    border-radius: 12px;
+    width: 300px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 25px;
+    text-align: center;
+}
+.countdown-card h3 {
+    color: white;
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+.countdown-timer {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 25px;
+}
+.time-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.time-value {
+    background: rgba(139, 92, 246, 0.2);
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 20px;
+    font-weight: bold;
+    min-width: 50px;
+    margin-bottom: 5px;
+}
+.time-label {
+    color: #e0e0e0;
+    font-size: 12px;
+}
+.countdown-button {
+    background: #8B5CF6;
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+.countdown-button:hover {
+    background: #7C3AED;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '29',
+        name: 'بطاقة الموسيقى',
+        description: 'بطاقة لعرض مشغل الموسيقى',
+        category: 'cards',
+        html: `<div class="music-card">
+    <div class="music-cover">
+        <img src="https://via.placeholder.com/150x150/8B5CF6/FFFFFF?text=ألبوم" alt="Album Cover">
+    </div>
+    <div class="music-info">
+        <h3>اسم الأغنية</h3>
+        <p>اسم الفنان</p>
+    </div>
+    <div class="music-controls">
+        <button class="control-btn">⏮</button>
+        <button class="control-btn">▶</button>
+        <button class="control-btn">⏭</button>
+    </div>
+    <div class="music-progress">
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 65%"></div>
+        </div>
+        <div class="progress-time">
+            <span>2:15</span>
+            <span>3:45</span>
+        </div>
+    </div>
+</div>`,
+        css: `.music-card {
+    background: rgba(20, 20, 20, 0.8);
+    border-radius: 12px;
+    width: 250px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    text-align: center;
+}
+.music-cover {
+    margin-bottom: 15px;
+}
+.music-cover img {
+    width: 120px;
+    height: 120px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+.music-info {
+    margin-bottom: 20px;
+}
+.music-info h3 {
+    color: white;
+    margin-bottom: 5px;
+    font-size: 18px;
+}
+.music-info p {
+    color: #8B5CF6;
+    font-size: 14px;
+}
+.music-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+.control-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+.control-btn:hover {
+    background: #8B5CF6;
+}
+.music-progress {
+    margin-bottom: 10px;
+}
+.progress-bar {
+    background: rgba(255, 255, 255, 0.1);
+    height: 4px;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+.progress-fill {
+    background: #8B5CF6;
+    height: 100%;
+    border-radius: 2px;
+}
+.progress-time {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #e0e0e0;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '30',
+        name: 'بطاقة التعليمات',
+        description: 'بطاقة لعرض الأسئلة الشائعة',
+        category: 'cards',
+        html: `<div class="faq-card">
+    <h3>كيف يمكنني استعادة كلمة المرور؟</h3>
+    <p>لاستعادة كلمة المرور، اضغط على رابط "نسيت كلمة المرور" في صفحة تسجيل الدخول واتبع التعليمات التي سيتم إرسالها إلى بريدك الإلكتروني.</p>
+    <div class="faq-expand">▼</div>
+</div>`,
+        css: `.faq-card {
+    background: rgba(20, 20, 20, 0.8);
+    border-radius: 12px;
+    width: 300px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+.faq-card:hover {
+    transform: translateY(-3px);
+}
+.faq-card h3 {
+    color: white;
+    margin-bottom: 10px;
+    font-size: 16px;
+    padding-right: 30px;
+}
+.faq-card p {
+    color: #e0e0e0;
+    font-size: 14px;
+    line-height: 1.5;
+}
+.faq-expand {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    color: #8B5CF6;
+    font-size: 16px;
+    cursor: pointer;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+
+    // أدوات التحميل (15 عنصر)
+    {
+        id: '31',
+        name: 'مؤشر تحميل دائري',
+        description: 'مؤشر تحميل دائري بسيط',
+        category: 'loaders',
+        html: '<div class="spinner"></div>',
+        css: `.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    border-left: 4px solid #8B5CF6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '32',
+        name: 'مؤشر تحميل نقطي',
+        description: 'مؤشر تحميل بنقاط متحركة',
+        category: 'loaders',
+        html: '<div class="dot-loader"><div></div><div></div><div></div></div>',
+        css: `.dot-loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.dot-loader div {
+    width: 12px;
+    height: 12px;
+    background: #8B5CF6;
+    border-radius: 50%;
+    animation: dot-loader 1.4s ease-in-out infinite both;
+}
+.dot-loader div:nth-child(1) { animation-delay: -0.32s; }
+.dot-loader div:nth-child(2) { animation-delay: -0.16s; }
+@keyframes dot-loader {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '33',
+        name: 'شريط التحميل',
+        description: 'شريط تحميل متحرك',
+        category: 'loaders',
+        html: '<div class="progress-bar-loader"><div class="progress"></div></div>',
+        css: `.progress-bar-loader {
+    width: 200px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+.progress-bar-loader .progress {
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(90deg, #8B5CF6, #EC4899);
+    border-radius: 4px;
+    animation: loading 2s ease-in-out infinite;
+}
+@keyframes loading {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(200%); }
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '34',
+        name: 'تحميل قلب',
+        description: 'مؤشر تحميل على شكل قلب',
+        category: 'loaders',
+        html: '<div class="heart-loader">❤</div>',
+        css: `.heart-loader {
+    font-size: 30px;
+    color: #EC4899;
+    animation: heartbeat 1.5s ease-in-out infinite;
+}
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '35',
+        name: 'تحميل دائري متعدد الألوان',
+        description: 'مؤشر تحميل دائري بألوان متعددة',
+        category: 'loaders',
+        html: '<div class="multi-spinner"></div>',
+        css: `.multi-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid transparent;
+    border-top: 4px solid #8B5CF6;
+    border-right: 4px solid #EC4899;
+    border-bottom: 4px solid #8B5CF6;
+    border-left: 4px solid #EC4899;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '36',
+        name: 'تحميل النبض',
+        description: 'مؤشر تحميل بتأثير النبض',
+        category: 'loaders',
+        html: '<div class="pulse-loader"></div>',
+        css: `.pulse-loader {
+    width: 40px;
+    height: 40px;
+    background: #8B5CF6;
+    border-radius: 50%;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse {
+    0%, 100% { transform: scale(0.8); opacity: 0.8; }
+    50% { transform: scale(1.2); opacity: 1; }
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '37',
+        name: 'تحميل متعرج',
+        description: 'مؤشر تحميل متعرج',
+        category: 'loaders',
+        html: '<div class="zigzag-loader"><div></div><div></div><div></div></div>',
+        css: `.zigzag-loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+.zigzag-loader div {
+    width: 10px;
+    height: 30px;
+    background: #8B5CF6;
+    animation: zigzag 1.2s ease-in-out infinite;
+}
+.zigzag-loader div:nth-child(1) { animation-delay: -0.24s; }
+.zigzag-loader div:nth-child(2) { animation-delay: -0.12s; }
+.zigzag-loader div:nth-child(3) { animation-delay: 0; }
+@keyframes zigzag {
+    0%, 100% { transform: scaleY(0.6); }
+    50% { transform: scaleY(1.2); }
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '38',
+        name: 'تحميل دائري مملوء',
+        description: 'مؤشر تحميل دائري مملوء',
+        category: 'loaders',
+        html: '<div class="circle-loader"></div>',
+        css: `.circle-loader {
+    width: 40px;
+    height: 40px;
+    background: conic-gradient(#8B5CF6 0%, transparent 30%);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    mask: radial-gradient(transparent 15px, black 16px);
+    -webkit-mask: radial-gradient(transparent 15px, black 16px);
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '39',
+        name: 'تحميل بسيط',
+        description: 'مؤشر تحميل بسيط',
+        category: 'loaders',
+        html: '<div class="simple-loader">جاري التحميل...</div>',
+        css: `.simple-loader {
+    color: #8B5CF6;
+    font-weight: bold;
+    position: relative;
+    padding-right: 25px;
+}
+.simple-loader::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    margin-top: -8px;
+    border: 2px solid rgba(139, 92, 246, 0.3);
+    border-top: 2px solid #8B5CF6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '40',
+        name: 'تحميل متاهة',
+        description: 'مؤشر تحميل على شكل متاهة',
+        category: 'loaders',
+        html: '<div class="maze-loader"></div>',
+        css: `.maze-loader {
+    width: 40px;
+    height: 40px;
+    position: relative;
+}
+.maze-loader::before,
+.maze-loader::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 2px solid #8B5CF6;
+    border-radius: 50%;
+    clip-path: polygon(0% 0%, 100% 0%, 100% 30%, 30% 30%, 30% 100%, 0% 100%);
+    animation: maze-spin 2s linear infinite;
+}
+.maze-loader::after {
+    clip-path: polygon(100% 100%, 0% 100%, 0% 70%, 70% 70%, 70% 0%, 100% 0%);
+    animation-delay: -1s;
+}
+@keyframes maze-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '41',
+        name: 'تحميل متعدد الدوائر',
+        description: 'مؤشر تحميل بدوائر متعددة',
+        category: 'loaders',
+        html: '<div class="multi-circle-loader"></div>',
+        css: `.multi-circle-loader {
+    width: 40px;
+    height: 40px;
+    position: relative;
+}
+.multi-circle-loader::before,
+.multi-circle-loader::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 2px solid transparent;
+    border-top: 2px solid #8B5CF6;
+    border-radius: 50%;
+    animation: spin 1.5s linear infinite;
+}
+.multi-circle-loader::after {
+    width: 60%;
+    height: 60%;
+    top: 20%;
+    left: 20%;
+    border-top: 2px solid #EC4899;
+    animation-delay: -0.5s;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '42',
+        name: 'تحميل بالموجات',
+        description: 'مؤشر تحميل بتأثير الموجات',
+        category: 'loaders',
+        html: '<div class="wave-loader"><div></div><div></div><div></div></div>',
+        css: `.wave-loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+.wave-loader div {
+    width: 8px;
+    height: 30px;
+    background: #8B5CF6;
+    animation: wave 1.2s ease-in-out infinite;
+}
+.wave-loader div:nth-child(1) { animation-delay: -0.24s; }
+.wave-loader div:nth-child(2) { animation-delay: -0.12s; }
+.wave-loader div:nth-child(3) { animation-delay: 0; }
+@keyframes wave {
+    0%, 100% { transform: scaleY(0.6); }
+    50% { transform: scaleY(1.2); }
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '43',
+        name: 'تحميل بالساعة',
+        description: 'مؤشر تحميل على شكل ساعة',
+        category: 'loaders',
+        html: '<div class="clock-loader"></div>',
+        css: `.clock-loader {
+    width: 40px;
+    height: 40px;
+    border: 2px solid #8B5CF6;
+    border-radius: 50%;
+    position: relative;
+}
+.clock-loader::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40%;
+    height: 2px;
+    background: #8B5CF6;
+    transform-origin: left center;
+    animation: clock-spin 2s linear infinite;
+}
+@keyframes clock-spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '44',
+        name: 'تحميل بالنقاط المتتابعة',
+        description: 'مؤشر تحميل بنقاط تتحرك في تتابع',
+        category: 'loaders',
+        html: '<div class="dot-follow-loader"><div></div><div></div><div></div></div>',
+        css: `.dot-follow-loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+.dot-follow-loader div {
+    width: 10px;
+    height: 10px;
+    background: #8B5CF6;
+    border-radius: 50%;
+    animation: dot-follow 1.4s ease-in-out infinite both;
+}
+.dot-follow-loader div:nth-child(1) { animation-delay: -0.32s; }
+.dot-follow-loader div:nth-child(2) { animation-delay: -0.16s; }
+@keyframes dot-follow {
+    0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
+    40% { transform: translateY(-10px); opacity: 1; }
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '45',
+        name: 'تحميل بالشرائط',
+        description: 'مؤشر تحميل بشرائط متحركة',
+        category: 'loaders',
+        html: '<div class="stripe-loader"></div>',
+        css: `.stripe-loader {
+    width: 80px;
+    height: 20px;
+    background: linear-gradient(90deg, 
+        rgba(139, 92, 246, 0.2) 0%, 
+        rgba(139, 92, 246, 0.8) 50%, 
+        rgba(139, 92, 246, 0.2) 100%);
+    background-size: 200% 100%;
+    animation: stripe-loading 1.5s ease-in-out infinite;
+}
+@keyframes stripe-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+
+    // حقول الإدخال (15 عنصر)
+    {
+        id: '46',
+        name: 'حقل إدخال بسيط',
+        description: 'حقل إدخال نصي بسيط',
+        category: 'inputs',
+        html: '<input type="text" class="simple-input" placeholder="أدخل النص هنا">',
+        css: `.simple-input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 12px 15px;
+    color: white;
+    font-size: 16px;
+    width: 250px;
+    transition: all 0.3s ease;
+}
+.simple-input:focus {
+    outline: none;
+    border-color: #8B5CF6;
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '47',
+        name: 'حقل إدخال مع أيقونة',
+        description: 'حقل إدخال نصي مع أيقونة',
+        category: 'inputs',
+        html: '<div class="input-with-icon"><span class="input-icon">🔍</span><input type="text" placeholder="ابحث هنا..."></div>',
+        css: `.input-with-icon {
+    position: relative;
+    width: 250px;
+}
+.input-with-icon .input-icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #e0e0e0;
+}
+.input-with-icon input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 12px 40px 12px 15px;
+    color: white;
+    font-size: 16px;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+.input-with-icon input:focus {
+    outline: none;
+    border-color: #8B5CF6;
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '48',
+        name: 'حقل كلمة المرور',
+        description: 'حقل إدخال خاص بكلمة المرور',
+        category: 'inputs',
+        html: '<div class="password-input"><input type="password" placeholder="كلمة المرور"><button class="toggle-password">👁</button></div>',
+        css: `.password-input {
+    position: relative;
+    width: 250px;
+}
+.password-input input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 12px 45px 12px 15px;
+    color: white;
+    font-size: 16px;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+.password-input input:focus {
+    outline: none;
+    border-color: #8B5CF6;
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+}
+.toggle-password {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #e0e0e0;
+    cursor: pointer;
+    font-size: 16px;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '49',
+        name: 'حقل نصي ممتد',
+        description: 'حقل إدخال نصي متعدد الأسطر',
+        category: 'inputs',
+        html: '<textarea class="text-area" placeholder="اكتب رسالتك هنا..."></textarea>',
+        css: `.text-area {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 12px 15px;
+    color: white;
+    font-size: 16px;
+    width: 250px;
+    height: 120px;
+    resize: vertical;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+.text-area:focus {
+    outline: none;
+    border-color: #8B5CF6;
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '50',
+        name: 'حقل بحث',
+        description: 'حقل بحث مخصص',
+        category: 'inputs',
+        html: '<div class="search-input"><input type="text" placeholder="ابحث..."><button class="search-btn">🔍</button></div>',
+        css: `.search-input {
+    display: flex;
+    width: 280px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+.search-input:focus-within {
+    border-color: #8B5CF6;
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+}
+.search-input input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    padding: 12px 15px;
+    color: white;
+    font-size: 16px;
+}
+.search-input input:focus {
+    outline: none;
+}
+.search-btn {
+    background: #8B5CF6;
+    border: none;
+    padding: 0 15px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.search-btn:hover {
+    background: #7C3AED;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '51',
+        name: 'حقل تحديد',
+        description: 'قائمة منسدلة للتحديد',
+        category: 'inputs',
+        html: `<select class="select-input">
+    <option value="">اختر خيارًا</option>
+    <option value="1">الخيار الأول</option>
+    <option value="2">الخيار الثاني</option>
+    <option value="3">الخيار الثالث</option>
+</select>`,
+        css: `.select-input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 12px 15px;
+    color: white;
+    font-size: 16px;
+    width: 250px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: left 15px center;
+    background-size: 16px;
+    padding-left: 40px;
+    transition: all 0.3s ease;
+}
+.select-input:focus {
+    outline: none;
+    border-color: #8B5CF6;
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '52',
+        name: 'حقل تبديل',
+        description: 'زر تبديل بين وضعين',
+        category: 'inputs',
+        html: '<label class="toggle-switch"><input type="checkbox"><span class="slider"></span></label>',
+        css: `.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.2);
+    transition: .4s;
+    border-radius: 24px;
+}
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+input:checked + .slider {
+    background: #8B5CF6;
+}
+input:checked + .slider:before {
+    transform: translateX(26px);
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '53',
+        name: 'زر اختيار',
+        description: 'زر للاختيار من عدة خيارات',
+        category: 'inputs',
+        html: '<label class="radio-button"><input type="radio" name="option"><span class="radio-checkmark"></span>خيار</label>',
+        css: `.radio-button {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 16px;
+    color: #e0e0e0;
+    margin-bottom: 10px;
+}
+.radio-button input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+.radio-checkmark {
+    position: relative;
+    height: 20px;
+    width: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    margin-left: 10px;
+    transition: all 0.3s ease;
+}
+.radio-button input:checked ~ .radio-checkmark {
+    background: #8B5CF6;
+}
+.radio-checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+.radio-button input:checked ~ .radio-checkmark:after {
+    display: block;
+}
+.radio-checkmark:after {
+    top: 6px;
+    left: 6px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: white;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '54',
+        name: 'مربع اختيار',
+        description: 'مربع اختيار مخصص',
+        category: 'inputs',
+        html: '<label class="checkbox-button"><input type="checkbox"><span class="checkmark"></span>موافق على الشروط</label>',
+        css: `.checkbox-button {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 16px;
+    color: #e0e0e0;
+    margin-bottom: 10px;
+}
+.checkbox-button input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+.checkmark {
+    position: relative;
+    height: 20px;
+    width: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    margin-left: 10px;
+    transition: all 0.3s ease;
+}
+.checkbox-button input:checked ~ .checkmark {
+    background: #8B5CF6;
+}
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+.checkbox-button input:checked ~ .checkmark:after {
+    display: block;
+}
+.checkmark:after {
+    left: 7px;
+    top: 3px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '55',
+        name: 'شريط تمرير',
+        description: 'شريط تمرير مخصص',
+        category: 'inputs',
+        html: '<input type="range" class="range-slider" min="0" max="100" value="50">',
+        css: `.range-slider {
+    width: 250px;
+    height: 5px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    outline: none;
+}
+.range-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #8B5CF6;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.range-slider::-webkit-slider-thumb:hover {
+    background: #7C3AED;
+    transform: scale(1.2);
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '56',
+        name: 'حقل التاريخ',
+        description: 'حقل إدخال للتاريخ',
+        category: 'inputs',
+        html: '<input type="date" class="date-input">',
+        css: `.date-input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 12px 15px;
+    color: white;
+    font-size: 16px;
+    width: 250px;
+    transition: all 0.3s ease;
+}
+.date-input:focus {
+    outline: none;
+    border-color: #8B5CF6;
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+}
+.date-input::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '57',
+        name: 'محدد الألوان',
+        description: 'حقل إدخال لاختيار الألوان',
+        category: 'inputs',
+        html: '<input type="color" class="color-picker" value="#8B5CF6">',
+        css: `.color-picker {
+    width: 50px;
+    height: 50px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+}
+.color-picker::-webkit-color-swatch {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '58',
+        name: 'حقل تحميل الملف',
+        description: 'حقل لتحميل الملفات',
+        category: 'inputs',
+        html: '<label class="file-upload"><input type="file"><span>اختر ملف</span></label>',
+        css: `.file-upload {
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+.file-upload input[type="file"] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+}
+.file-upload span {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 12px 20px;
+    color: #e0e0e0;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+.file-upload:hover span {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '59',
+        name: 'حقل الإدخال العائم',
+        description: 'حقل إدخال بتسمية عائمة',
+        category: 'inputs',
+        html: '<div class="floating-input"><input type="text" placeholder=" "><label>الاسم الكامل</label></div>',
+        css: `.floating-input {
+    position: relative;
+    width: 250px;
+    margin-bottom: 20px;
+}
+.floating-input input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 18px 15px 8px;
+    color: white;
+    font-size: 16px;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+.floating-input label {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    color: #e0e0e0;
+    font-size: 16px;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+.floating-input input:focus {
+    outline: none;
+    border-color: #8B5CF6;
+    box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+}
+.floating-input input:focus + label,
+.floating-input input:not(:placeholder-shown) + label {
+    top: 10px;
+    transform: translateY(0);
+    font-size: 12px;
+    color: #8B5CF6;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '60',
+        name: 'حقل الإدخال المحدد',
+        description: 'حقل إدخال مع تحديد التكامل',
+        category: 'inputs',
+        html: '<input type="text" class="focused-input" placeholder="ادخل بياناتك">',
+        css: `.focused-input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid transparent;
+    border-radius: 0;
+    padding: 12px 15px;
+    color: white;
+    font-size: 16px;
+    width: 250px;
+    transition: all 0.3s ease;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+.focused-input:focus {
+    outline: none;
+    border-bottom-color: #8B5CF6;
+    background: rgba(139, 92, 246, 0.1);
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+
+    // أشرطة التنقل (15 عنصر)
+    {
+        id: '61',
+        name: 'شريط تنقل بسيط',
+        description: 'شريط تنقل بسيط وأنيق',
+        category: 'nav',
+        html: `<nav class="navbar">
+    <div class="nav-logo">شعار الموقع</div>
+    <ul class="nav-links">
+        <li><a href="#">الرئيسية</a></li>
+        <li><a href="#">المنتجات</a></li>
+        <li><a href="#">الخدمات</a></li>
+        <li><a href="#">اتصل بنا</a></li>
+    </ul>
+</nav>`,
+        css: `.navbar {
+    background: rgba(20, 20, 20, 0.8);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.nav-logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #8B5CF6;
+}
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+}
+.nav-links a {
+    color: #e0e0e0;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+.nav-links a:hover {
+    color: #8B5CF6;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        
+        id: '64',
+        name: 'شريط تنقل مع قائمة منسدلة',
+        description: 'شريط تنقل يتضمن قوائم منسدلة',
+        category: 'nav',
+        html: `<nav class="dropdown-nav">
+    <div class="nav-logo">القائمة</div>
+    <ul class="nav-links">
+        <li><a href="#">الرئيسية</a></li>
+        <li class="dropdown">
+            <a href="#">الخدمات ▾</a>
+            <ul class="dropdown-menu">
+                <li><a href="#">تصميم مواقع</a></li>
+                <li><a href="#">تطوير تطبيقات</a></li>
+                <li><a href="#">استضافة مواقع</a></li>
+            </ul>
+        </li>
+        <li><a href="#">اتصل بنا</a></li>
+    </ul>
+</nav>`,
+        css: `.dropdown-nav {
+    background: rgba(20, 20, 20, 0.8);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.nav-logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #8B5CF6;
+}
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+    position: relative;
+}
+.nav-links a {
+    color: #e0e0e0;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    display: block;
+    padding: 10px;
+}
+.nav-links a:hover {
+    color: #8B5CF6;
+}
+.dropdown {
+    position: relative;
+}
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: rgba(20, 20, 20, 0.9);
+    min-width: 150px;
+    padding: 10px 0;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+}
+.dropdown:hover .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+.dropdown-menu li {
+    margin: 0;
+}
+.dropdown-menu a {
+    padding: 10px 20px;
+    display: block;
+}
+.dropdown-menu a:hover {
+    background: rgba(139, 92, 246, 0.2);
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '65',
+        name: 'شريط تنقل شفاف',
+        description: 'شريط تنقل بخلفية شفافة',
+        category: 'nav',
+        html: `<nav class="transparent-nav">
+    <div class="nav-logo">شعار</div>
+    <ul class="nav-links">
+        <li><a href="#">الرئيسية</a></li>
+        <li><a href="#">عننا</a></li>
+        <li><a href="#">الخدمات</a></li>
+        <li><a href="#">اتصل بنا</a></li>
+    </ul>
+</nav>`,
+        css: `.transparent-nav {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.nav-logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #8B5CF6;
+}
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+}
+.nav-links a {
+    color: #e0e0e0;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+.nav-links a:hover {
+    color: #8B5CF6;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '66',
+        name: 'شريط تنقل مع زر',
+        description: 'شريط تنقل يتضمن زرًا خاصًا',
+        category: 'nav',
+        html: `<nav class="button-nav">
+    <div class="nav-logo">الموقع</div>
+    <ul class="nav-links">
+        <li><a href="#">الرئيسية</a></li>
+        <li><a href="#">المنتجات</a></li>
+        <li><a href="#">الخدمات</a></li>
+        <li><a href="#">المدونة</a></li>
+    </ul>
+    <button class="nav-button">تسجيل الدخول</button>
+</nav>`,
+        css: `.button-nav {
+    background: rgba(20, 20, 20, 0.8);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.nav-logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #8B5CF6;
+}
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+}
+.nav-links a {
+    color: #e0e0e0;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+.nav-links a:hover {
+    color: #8B5CF6;
+}
+.nav-button {
+    background: #8B5CF6;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+.nav-button:hover {
+    background: #7C3AED;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '67',
+        name: 'شريط تنقل ثابت',
+        description: 'شريط تنقل يثبت في أعلى الصفحة',
+        category: 'nav',
+        html: `<nav class="sticky-nav">
+    <div class="nav-logo">الموقع</div>
+    <ul class="nav-links">
+        <li><a href="#">الرئيسية</a></li>
+        <li><a href="#">المنتجات</a></li>
+        <li><a href="#">الخدمات</a></li>
+        <li><a href="#">اتصل بنا</a></li>
+    </ul>
+</nav>`,
+        css: `.sticky-nav {
+    background: rgba(20, 20, 20, 0.9);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.nav-logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #8B5CF6;
+}
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+}
+.nav-links a {
+    color: #e0e0e0;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+.nav-links a:hover {
+    color: #8B5CF6;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '68',
+        name: 'شريط تنقل مركزي',
+        description: 'شريط تنقل مع عناصر متمركزة',
+        category: 'nav',
+        html: `<nav class="centered-nav">
+    <div class="nav-logo">الشعار</div>
+    <ul class="nav-links">
+        <li><a href="#">الرئيسية</a></li>
+        <li><a href="#">عننا</a></li>
+        <li><a href="#">الخدمات</a></li>
+        <li><a href="#">المشاريع</a></li>
+        <li><a href="#">اتصل بنا</a></li>
+    </ul>
+</nav>`,
+        css: `.centered-nav {
+    background: rgba(20, 20, 20, 0.8);
+    padding: 15px 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.nav-logo {
+    font-size: 28px;
+    font-weight: bold;
+    color: #8B5CF6;
+}
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 25px;
+}
+.nav-links a {
+    color: #e0e0e0;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+.nav-links a:hover {
+    color: #8B5CF6;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '69',
+        name: 'شريط تنقل مع شريط بحث',
+        description: 'شريط تنقل يتضمن شريط بحث',
+        category: 'nav',
+        html: `<nav class="search-nav">
+    <div class="nav-logo">الموقع</div>
+    <div class="nav-search">
+        <input type="text" placeholder="ابحث...">
+        <button>🔍</button>
+    </div>
+    <ul class="nav-links">
+        <li><a href="#">الرئيسية</a></li>
+        <li><a href="#">المنتجات</a></li>
+        <li><a href="#">اتصل بنا</a></li>
+    </ul>
+</nav>`,
+        css: `.search-nav {
+    background: rgba(20, 20, 20, 0.8);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.nav-logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #8B5CF6;
+}
+.nav-search {
+    display: flex;
+    flex: 1;
+    max-width: 400px;
+}
+.nav-search input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-right: none;
+    border-radius: 8px 0 0 8px;
+    padding: 10px 15px;
+    color: white;
+}
+.nav-search button {
+    background: #8B5CF6;
+    border: none;
+    border-radius: 0 8px 8px 0;
+    padding: 10px 15px;
+    color: white;
+    cursor: pointer;
+}
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+}
+.nav-links a {
+    color: #e0e0e0;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+.nav-links a:hover {
+    color: #8B5CF6;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '70',
+        name: 'شريط تنقل مع أيقونات',
+        description: 'شريط تنقل يستخدم الأيقونات',
+        category: 'nav',
+        html: `<nav class="icon-nav">
+    <a href="#" class="nav-item active">🏠</a>
+    <a href="#" class="nav-item">🔍</a>
+    <a href="#" class="nav-item">📊</a>
+    <a href="#" class="nav-item">⚙️</a>
+    <a href="#" class="nav-item">👤</a>
+</nav>`,
+        css: `.icon-nav {
+    background: rgba(20, 20, 20, 0.8);
+    padding: 15px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.nav-item {
+    color: #e0e0e0;
+    text-decoration: none;
+    font-size: 20px;
+    padding: 10px 15px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+.nav-item.active {
+    color: #8B5CF6;
+    background: rgba(139, 92, 246, 0.2);
+}
+.nav-item:hover {
+    color: #8B5CF6;
+    background: rgba(139, 92, 246, 0.1);
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '71',
+        name: 'شريط تنقل متعدد المستويات',
+        description: 'شريط تنقل بمستويات متعددة',
+        category: 'nav',
+        html: `<nav class="multi-level-nav">
+    <ul class="top-level">
+        <li><a href="#">الرئيسية</a></li>
+        <li>
+            <a href="#">الخدمات ▾</a>
+            <ul class="second-level">
+                <li><a href="#">تصميم مواقع</a></li>
+                <li>
+                    <a href="#">تطوير تطبيقات ▾</a>
+                    <ul class="third-level">
+                        <li><a href="#">تطبيقات ويب</a></li>
+                        <li><a href="#">تطبيقات جوال</a></li>
+                    </ul>
+                </li>
+                <li><a href="#">استضافة مواقع</a></li>
+            </ul>
+        </li>
+        <li><a href="#">اتصل بنا</a></li>
+    </ul>
+</nav>`,
+        css: `.multi-level-nav {
+    background: rgba(20, 20, 20, 0.8);
+    padding: 15px 30px;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.top-level {
+    display: flex;
+    list-style: none;
+    gap: 25px;
+    position: relative;
+}
+.top-level > li {
+    position: relative;
+}
+.top-level a {
+    color: #e0e0e0;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    display: block;
+    padding: 10px;
+}
+.top-level a:hover {
+    color: #8B5CF6;
+}
+.second-level,
+.third-level {
+    position: absolute;
+    background: rgba(20, 20, 20, 0.9);
+    min-width: 150px;
+    padding: 10px 0;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    list-style: none;
+}
+.second-level {
+    top: 100%;
+    right: 0;
+}
+.third-level {
+    top: 0;
+    right: 100%;
+}
+.top-level li:hover > ul {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+.second-level li,
+.third-level li {
+    margin: 0;
+}
+.second-level a,
+.third-level a {
+    padding: 10px 20px;
+    display: block;
+}
+.second-level a:hover,
+.third-level a:hover {
+    background: rgba(139, 92, 246, 0.2);
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '72',
+        name: 'شريط تنقل مدمج',
+        description: 'شريط تنقل مضغوط ومدمج',
+        category: 'nav',
+        html: `<nav class="compact-nav">
+    <div class="nav-logo">ش</div>
+    <ul class="nav-links">
+        <li><a href="#" title="الرئيسية">🏠</a></li>
+        <li><a href="#" title="البحث">🔍</a></li>
+        <li><a href="#" title="الإعدادات">⚙️</a></li>
+        <li><a href="#" title="الحساب">👤</a></li>
+    </ul>
+</nav>`,
+        css: `.compact-nav {
+    background: rgba(20, 20, 20, 0.8);
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.nav-logo {
+    width: 30px;
+    height: 30px;
+    background: #8B5CF6;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+}
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 15px;
+}
+.nav-links a {
+    color: #e0e0e0;
+    text-decoration: none;
+    font-size: 18px;
+    padding: 8px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    display: block;
+}
+.nav-links a:hover {
+    color: #8B5CF6;
+    background: rgba(139, 92, 246, 0.2);
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '73',
+        name: 'شريط تنقل مع شعار كبير',
+        description: 'شريط تنقل بشعار كبير ومميز',
+        category: 'nav',
+        html: `<nav class="big-logo-nav">
+    <div class="nav-logo">
+        <div class="logo-icon">💎</div>
+        <div class="logo-text">اسم الموقع</div>
+    </div>
+    <ul class="nav-links">
+        <li><a href="#">الرئيسية</a></li>
+        <li><a href="#">الخدمات</a></li>
+        <li><a href="#">المشاريع</a></li>
+        <li><a href="#">اتصل بنا</a></li>
+    </ul>
+</nav>`,
+        css: `.big-logo-nav {
+    background: rgba(20, 20, 20, 0.8);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.logo-icon {
+    font-size: 28px;
+}
+.logo-text {
+    font-size: 20px;
+    font-weight: bold;
+    color: #8B5CF6;
+}
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+}
+.nav-links a {
+    color: #e0e0e0;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+.nav-links a:hover {
+    color: #8B5CF6;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '74',
+        name: 'شريط تنقل مع فصل',
+        description: 'شريط تنقل مع خط فاصل بين العناصر',
+        category: 'nav',
+        html: `<nav class="separator-nav">
+    <div class="nav-logo">الموقع</div>
+    <ul class="nav-links">
+        <li><a href="#">الرئيسية</a></li>
+        <li class="separator">|</li>
+        <li><a href="#">المنتجات</a></li>
+        <li class="separator">|</li>
+        <li><a href="#">الخدمات</a></li>
+        <li class="separator">|</li>
+        <li><a href="#">اتصل بنا</a></li>
+    </ul>
+</nav>`,
+        css: `.separator-nav {
+    background: rgba(20, 20, 20, 0.8);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.nav-logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #8B5CF6;
+}
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 5px;
+    align-items: center;
+}
+.nav-links a {
+    color: #e0e0e0;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    padding: 10px;
+}
+.nav-links a:hover {
+    color: #8B5CF6;
+}
+.separator {
+    color: rgba(255, 255, 255, 0.2);
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '75',
+        name: 'شريط تنقل متعدد الألوان',
+        description: 'شريط تنقل بألوان متعددة',
+        category: 'nav',
+        html: `<nav class="colorful-nav">
+    <div class="nav-logo">الموقع</div>
+    <ul class="nav-links">
+        <li><a href="#" style="--color: #8B5CF6;">الرئيسية</a></li>
+        <li><a href="#" style="--color: #EC4899;">المنتجات</a></li>
+        <li><a href="#" style="--color: #10B981;">الخدمات</a></li>
+        <li><a href="#" style="--color: #F59E0B;">اتصل بنا</a></li>
+    </ul>
+</nav>`,
+        css: `.colorful-nav {
+    background: rgba(20, 20, 20, 0.8);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.nav-logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #8B5CF6;
+}
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+}
+.nav-links a {
+    color: #e0e0e0;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+    padding: 10px 0;
+}
+.nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--color);
+    transition: width 0.3s ease;
+}
+.nav-links a:hover {
+    color: var(--color);
+}
+.nav-links a:hover::after {
+    width: 100%;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+
+    // تأثيرات (15 عنصر)
+    {
+        id: '76',
+        name: 'تأثير ظل متحرك',
+        description: 'ظل يتحرك بتأثير ثلاثي الأبعاد',
+        category: 'effects',
+        html: '<div class="floating-box">عنصر متحرك</div>',
+        css: `.floating-box {
+    background: linear-gradient(135deg, #8B5CF6, #EC4899);
+    color: white;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    width: 200px;
+    animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+    50% {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 30px rgba(0, 0, 0, 0.4);
+    }
+    100% {
+        transform: translateY(0px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '77',
+        name: 'تأثير الوميض',
+        description: 'تأثير وميض لجذب الانتباه',
+        category: 'effects',
+        html: '<div class="blinking-element">تنبيه مهم!</div>',
+        css: `.blinking-element {
+    background: #8B5CF6;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+    animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '78',
+        name: 'تأثير الكتابة',
+        description: 'نص يظهر كأنه يكتب',
+        category: 'effects',
+        html: '<div class="typing-effect">مرحبا بك في الموقع...</div>',
+        css: `.typing-effect {
+    color: white;
+    font-size: 18px;
+    font-family: monospace;
+    overflow: hidden;
+    border-right: 2px solid #8B5CF6;
+    white-space: nowrap;
+    animation: typing 3.5s steps(30, end), blink-caret 0.75s step-end infinite;
+}
+@keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+}
+@keyframes blink-caret {
+    from, to { border-color: transparent; }
+    50% { border-color: #8B5CF6; }
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '79',
+        name: 'تأثير التموج',
+        description: 'تأثير تموج عند النقر',
+        category: 'effects',
+        html: '<button class="ripple-button">انقر هنا</button>',
+        css: `.ripple-button {
+    background: #8B5CF6;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    position: relative;
+    overflow: hidden;
+}
+.ripple-button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+.ripple-button:active::after {
+    width: 300px;
+    height: 300px;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '80',
+        name: 'تأثير التدوير',
+        description: 'عنصر يدور بشكل مستمر',
+        category: 'effects',
+        html: '<div class="spinning-icon">⚡</div>',
+        css: `.spinning-icon {
+    font-size: 40px;
+    animation: spin 2s linear infinite;
+    display: inline-block;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '81',
+        name: 'تأثير التمدد',
+        description: 'عنصر يتمدد عند التمرير',
+        category: 'effects',
+        html: '<div class="stretch-box">مرر فوقي</div>',
+        css: `.stretch-box {
+    background: linear-gradient(135deg, #8B5CF6, #EC4899);
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    width: 150px;
+}
+.stretch-box:hover {
+    transform: scale(1.1);
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '82',
+        name: 'تأثير الوهج',
+        description: 'تأثير وهج حول العنصر',
+        category: 'effects',
+        html: '<div class="glow-effect">عنصر مضيء</div>',
+        css: `.glow-effect {
+    background: rgba(20, 20, 20, 0.8);
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+    border: 1px solid #8B5CF6;
+    box-shadow: 0 0 10px #8B5CF6, 0 0 20px #8B5CF6;
+    animation: glow 2s ease-in-out infinite;
+}
+@keyframes glow {
+    0%, 100% { box-shadow: 0 0 10px #8B5CF6, 0 0 20px #8B5CF6; }
+    50% { box-shadow: 0 0 20px #8B5CF6, 0 0 40px #8B5CF6; }
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '83',
+        name: 'تأثير الانزياح',
+        description: 'انزياح للخلف عند التمرير',
+        category: 'effects',
+        html: '<div class="tilt-box">مرر فوقي</div>',
+        css: `.tilt-box {
+    background: linear-gradient(135deg, #8B5CF6, #EC4899);
+    color: white;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    transition: transform 0.3s ease;
+    transform-style: preserve-3d;
+}
+.tilt-box:hover {
+    transform: rotateX(10deg) rotateY(10deg);
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '84',
+        name: 'تأثير التلاشي',
+        description: 'تأثير تلاشي عند التمرير',
+        category: 'effects',
+        html: '<div class="fade-element">يتلاشى عند التمرير</div>',
+        css: `.fade-element {
+    background: #8B5CF6;
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+.fade-element:hover {
+    opacity: 1;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '85',
+        name: 'تأثير الارتداد',
+        description: 'تأثير ارتداد عند التمرير',
+        category: 'effects',
+        html: '<div class="bounce-element">ارتداد</div>',
+        css: `.bounce-element {
+    background: #8B5CF6;
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+    animation: bounce 2s ease infinite;
+}
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-20px); }
+    60% { transform: translateY(-10px); }
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '86',
+        name: 'تأثير التموج اللانهائي',
+        description: 'موجات تنتشر باستمرار',
+        category: 'effects',
+        html: '<div class="ripple-circle"></div>',
+        css: `.ripple-circle {
+    width: 60px;
+    height: 60px;
+    background: rgba(139, 92, 246, 0.6);
+    border-radius: 50%;
+    position: relative;
+    animation: ripple 2s linear infinite;
+}
+@keyframes ripple {
+    0% {
+        box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.6),
+                    0 0 0 0 rgba(139, 92, 246, 0.6);
+    }
+    50% {
+        box-shadow: 0 0 0 20px rgba(139, 92, 246, 0),
+                    0 0 0 0 rgba(139, 92, 246, 0.6);
+    }
+    100% {
+        box-shadow: 0 0 0 20px rgba(139, 92, 246, 0),
+                    0 0 0 40px rgba(139, 92, 246, 0);
+    }
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '87',
+        name: 'تأثير النبض',
+        description: 'تأثير نبض مثل دقات القلب',
+        category: 'effects',
+        html: '<div class="pulse-element">❤</div>',
+        css: `.pulse-element {
+    font-size: 40px;
+    color: #EC4899;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '88',
+        name: 'تأثير التطاير',
+        description: 'تأثير تطاير الأجزاء',
+        category: 'effects',
+        html: '<div class="flyaway-element">انقر علي</div>',
+        css: `.flyaway-element {
+    background: #8B5CF6;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.6s ease;
+}
+.flyaway-element:hover {
+    transform: translateY(-20px) rotate(10deg);
+    opacity: 0;
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+        id: '89',
+        name: 'تأثير الموجة',
+        description: 'تأثير موجة على النص',
+        category: 'effects',
+        html: '<div class="wave-text">موجة نصية</div>',
+        css: `.wave-text {
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+}
+.wave-text span {
+    display: inline-block;
+    animation: wave 2s ease-in-out infinite;
+}
+.wave-text span:nth-child(1) { animation-delay: 0.0s; }
+.wave-text span:nth-child(2) { animation-delay: 0.1s; }
+.wave-text span:nth-child(3) { animation-delay: 0.2s; }
+.wave-text span:nth-child(4) { animation-delay: 0.3s; }
+.wave-text span:nth-child(5) { animation-delay: 0.4s; }
+@keyframes wave {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}`,
+        author: '',
+        createdAt: new Date()
+    },
+    {
+    
+  
+  // 91 - زر مشاركة اجتماعي متحرك
+  
+    id: '91',
+    name: 'زر مشاركة اجتماعي متحرك',
+    description: 'زر عند الضغط عليه يظهر أيقونات المشاركة الاجتماعية مع أنيميشن',
+    category: 'interactive',
+    html: `
+<div class="social-share">
+  <button class="share-toggle">مشاركة</button>
+  <div class="share-icons">
+    <i class="fab fa-facebook-f"></i>
+    <i class="fab fa-twitter"></i>
+    <i class="fab fa-linkedin-in"></i>
+  </div>
+</div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+`,
+    css: `
+.social-share { position: relative; display: inline-block; }
+.share-toggle { background:#1da1f2;color:white;padding:10px 20px;border:none;border-radius:5px;cursor:pointer;font-weight:bold;transition:0.3s; }
+.share-toggle:hover{background:#0d8ddb;}
+.share-icons { display:flex;gap:10px;position:absolute;top:50px;opacity:0;pointer-events:none;transition:opacity 0.3s ease; }
+.share-icons i { color:white;background:#343a40;padding:10px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;transition:0.3s;cursor:pointer; }
+.share-icons i:hover { transform:scale(1.2); background:#495057; }
+.social-share.active .share-icons { opacity:1; pointer-events:auto; }
+`,
+    author: '',
+    createdAt: new Date(),
+    js: `
+document.querySelector('.share-toggle').addEventListener('click', function() {
+  this.parentElement.classList.toggle('active');
+});
+`
+  
+  // 92 - بطاقة معلومات ديناميكية
+      },
+    {    
+    id: '92',
+    name: 'بطاقة معلومات ديناميكية',
+    description: 'بطاقة تظهر معلومات مع أنيميشن عند المرور بالفأرة',
+    category: 'cards',
+    html: `<div class="info-card">مرحباً بك في موقعنا!</div>`,
+    css: `
+.info-card {
+  background:#8B5CF6;color:white;padding:20px;border-radius:10px;text-align:center;transition:0.5s;box-shadow:0 4px 6px rgba(0,0,0,0.2);
+}
+.info-card:hover { transform:translateY(-10px) scale(1.05); box-shadow:0 10px 20px rgba(0,0,0,0.3);}
+`,
+    author: '',
+    createdAt: new Date()
+  
+  // 93 - شريط أخبار متحرك
+      },
+    {    
+    id: '93',
+    name: 'شريط أخبار متحرك',
+    description: 'شريط نصوص يتحرك أفقياً لإظهار الأخبار أو التنبيهات',
+    category: 'news',
+    html: `<div class="news-ticker"><p>آخر الأخبار: موقعنا يقدم محتوى متجدد يومياً!</p></div>`,
+    css: `
+.news-ticker { background:#f8f9fa;color:#343a40;padding:10px;font-weight:bold;overflow:hidden;white-space:nowrap; }
+.news-ticker p { display:inline-block;animation:scroll-left 15s linear infinite; }
+@keyframes scroll-left { 0%{transform:translateX(100%);} 100%{transform:translateX(-100%);} }
+`,
+    author: '',
+    createdAt: new Date()
+  
+
+  // 94 - زر نبض متحرك
+      },
+    {    
+    id: '94',
+    name: 'زر نبض متحرك',
+    description: 'زر ينبض لجذب الانتباه',
+    category: 'buttons',
+    html: `<button class="pulse-btn">اضغط علي</button>`,
+    css: `
+.pulse-btn { background:#FF5722;color:white;padding:15px 30px;border:none;border-radius:8px;font-weight:bold;cursor:pointer;animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.1);} }
+`,
+    author: '',
+    createdAt: new Date()
+      },
+    {    
+
+  // 95 - أيقونات تفاعلية تتغير عند المرور
+        
+    id: '95',
+    name: 'أيقونات تفاعلية',
+    description: 'أيقونات تتغير لونها عند المرور بالفأرة',
+    category: 'icons',
+    html: `
+<div class="icon-set">
+  <i class="fab fa-html5"></i>
+  <i class="fab fa-css3-alt"></i>
+  <i class="fab fa-js"></i>
+</div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+`,
+    css: `
+.icon-set { display:flex;gap:15px;font-size:40px; }
+.icon-set i { color:#343a40; transition:0.3s; cursor:pointer; }
+.icon-set i:hover { color:#FF5722; transform:rotate(20deg) scale(1.2); }
+`,
+    author: '',
+    createdAt: new Date()
+  
+  // 96 - عداد متزايد تلقائياً
+      },
+    {    
+    id: '96',
+    name: 'عداد أرقام متزايد',
+    description: 'عداد يظهر الأرقام مع أنيميشن تصاعدي',
+    category: 'counters',
+    html: `<div class="counter" data-target="1500">0</div>`,
+    css: `
+.counter { font-size:40px;font-weight:bold;color:#1da1f2;text-align:center; }
+`,
+    author: '',
+    createdAt: new Date(),
+    js: `
+const counter = document.querySelector('.counter');
+const target = +counter.getAttribute('data-target');
+let count = 0;
+const step = target / 100;
+const interval = setInterval(() => {
+  count += step;
+  if(count >= target){ count = target; clearInterval(interval);}
+  counter.textContent = Math.floor(count);
+}, 30);
+`
+  
+
+  // 97 - بطاقة صورة متحركة عند المرور
+      },
+    {    
+    id: '97',
+    name: 'بطاقة صورة متحركة',
+    description: 'صورة تتحرك وتكبر عند المرور بالفأرة',
+    category: 'cards',
+    html: `<div class="image-card"><img src="https://via.placeholder.com/200x150" alt="صورة"></div>`,
+    css: `
+.image-card img { border-radius:10px; transition:0.5s; display:block; }
+.image-card img:hover { transform:scale(1.1) rotate(5deg); }
+`,
+    author: '',
+    createdAt: new Date()
+  
+  // 98 - أيقونة تحميل دوارة
+      },
+    {    
+    id: '98',
+    name: 'أيقونة تحميل دوارة',
+    description: 'أيقونة تدور لتعطي انطباع التحميل',
+    category: 'animations',
+    html: `<div class="loader"></div>`,
+    css: `
+.loader { border:6px solid #f3f3f3; border-top:6px solid #1da1f2; border-radius:50%; width:50px; height:50px; animation:spin 1s linear infinite; margin:auto; }
+@keyframes spin { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
+`,
+    author: '',
+    createdAt: new Date()
+  
+
+  // 99 - زر ارتداد عند الضغط
+      },
+    {    
+    id: '99',
+    name: 'زر ارتداد عند الضغط',
+    description: 'زر يرتد ويصغر ثم يكبر عند الضغط عليه',
+    category: 'buttons',
+    html: `<button class="bounce-btn">اضغط علي</button>`,
+    css: `
+.bounce-btn { background:#4CAF50;color:white;padding:15px 30px;border:none;border-radius:8px;font-weight:bold;cursor:pointer; transition:0.3s; }
+.bounce-btn:active { transform:scale(0.8); animation:bounce 0.5s forwards; }
+@keyframes bounce { 0%{transform:scale(0.8);} 50%{transform:scale(1.2);} 100%{transform:scale(1);} }
+`,
+    author: '',
+    createdAt: new Date()
+ 
+  // 100 - نافذة إشعار تظهر وتختفي تلقائياً
+      },
+    {    
+    id: '100',
+    name: 'نافذة إشعار متحركة',
+    description: 'إشعار يظهر من أعلى ويختفي بعد ثواني',
+    category: 'notifications',
+    html: `<div class="toast">تمت العملية بنجاح!</div>`,
+    css: `
+.toast { position:fixed;top:-50px;right:20px;background:#1da1f2;color:white;padding:15px 25px;border-radius:8px;transition:0.5s; }
+.toast.show { top:20px; }
+`,
+    author: '',
+    createdAt: new Date(),
+    js: `
+const toast = document.querySelector('.toast');
+toast.classList.add('show');
+setTimeout(() => { toast.classList.remove('show'); }, 3000);
+` 
+    },
+    {   
+    
+     
+        id: '101',
+        name: 'زر مشاركة ذكي',
+        description: 'زر مشاركة يتكيف مع منصات التواصل المختلفة',
+        category: 'social',
+        html: `
+<div class="smart-share-container">
+    <button class="smart-share-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+        </svg>
+        مشاركة
+    </button>
+    <div class="share-menu">
+        <button class="share-option">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="#1877F2">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+        </button>
+        <button class="share-option">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="#1DA1F2">
+                <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+            </svg>
+        </button>
+        <button class="share-option">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="#0077B5">
+                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+            </svg>
+        </button>
+        <button class="share-option">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="#25D366">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.864 3.488"/>
+            </svg>
+        </button>
+        <button class="share-option">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="#0088CC">
+                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.160-.295.295-.605.295l.213-3.053 5.56-5.022c.242-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.136-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/>
+            </svg>
+        </button>
+    </div>
+</div>`,
+        css: `.smart-share-container {
+    position: relative;
+    display: inline-block;
+}
+
+.smart-share-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.smart-share-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.share-menu {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) scale(0);
+    background: white;
+    border-radius: 20px;
+    padding: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    display: flex;
+    gap: 12px;
+    margin-bottom: 10px;
+    opacity: 0;
+    transition: all 0.3s ease;
+    transform-origin: bottom center;
+}
+
+.share-menu.show {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+}
+
+.share-option {
+    background: none;
+    border: none;
+    padding: 12px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.share-option:hover {
+    transform: scale(1.1);
+    background: #f8f9fa;
+}`,
+        author: 'النظام',
+        createdAt: new Date()
+    },
+    {
+        id: '102',
+        name: 'بوصلة القبلة الرقمية',
+        description: 'بوصلة إلكترونية لتحديد اتجاه القبلة',
+        category: 'religious',
+        html: `<div class="qibla-compass">
+    <div class="compass-container">
+        <div class="compass-rose">
+            <div class="compass-needle"></div>
+            <div class="qibla-indicator"></div>
+        </div>
+        <div class="compass-info">
+            <div class="direction">الشمال: 0°</div>
+            <div class="qibla-angle">القبلة: 0°</div>
+        </div>
+    </div>
+    <button class="calibrate-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+        </svg>
+        معايرة
+    </button>
+</div>`,
+        css: `.qibla-compass {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.compass-container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 20px;
+}
+
+.compass-rose {
+    width: 100%;
+    height: 100%;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    position: relative;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.compass-needle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2px;
+    height: 80px;
+    background: #ff4757;
+    transform-origin: bottom center;
+    transform: translate(-50%, -100%) rotate(0deg);
+    transition: transform 0.5s ease;
+}
+
+.qibla-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 4px;
+    height: 40px;
+    background: #2ed573;
+    transform-origin: bottom center;
+    transform: translate(-50%, -100%) rotate(0deg);
+}
+
+.compass-info {
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+.direction, .qibla-angle {
+    margin: 5px 0;
+    font-weight: 500;
+}
+
+.calibrate-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 auto;
+    transition: all 0.3s ease;
+}
+
+.calibrate-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}`,
+        author: 'النظام',
+        createdAt: new Date()
+    },
+    {
+        id: '103',
+        name: 'عداد الذكر الرقمي',
+        description: 'عداد إلكتروني للذكر مع إحصائيات',
+        category: 'religious',
+        html: `<div class="digital-dhikr-counter">
+    <div class="counter-display">
+        <span>0</span>
+    </div>
+    <div class="counter-controls">
+        <button class="counter-btn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+            </svg>
+        </button>
+        <button class="reset-btn">إعادة تعيين</button>
+    </div>
+    <div class="counter-stats">
+        <div class="stat-item">
+            <span>المجموع اليومي</span>
+            <span>0</span>
+        </div>
+        <div class="stat-item">
+            <span>المجموع الكلي</span>
+            <span>0</span>
+        </div>
+    </div>
+</div>`,
+        css: `.digital-dhikr-counter {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.counter-display {
+    font-size: 4rem;
+    font-weight: bold;
+    margin: 20px 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.counter-controls {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.counter-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.counter-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.reset-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.reset-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.counter-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.stat-item span:first-child {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.stat-item span:last-child {
+    font-weight: bold;
+    font-size: 1.2rem;
+}`,
+        author: 'النظام',
+        createdAt: new Date()
+    },
+    {
+        id: '104',
+        name: 'شريط أخبار ذكي',
+        description: 'شريط أخبار يتكيف مع اهتمامات المستخدم',
+        category: 'news',
+        html: `<div class="smart-news-ticker">
+    <div class="ticker-header">
+        <h3>آخر الأخبار</h3>
+        <div class="ticker-controls">
+            <button class="control-btn">⏸</button>
+            <button class="control-btn">▶</button>
+        </div>
+    </div>
+    <div class="ticker-container">
+        <div class="ticker-content">
+            <div class="news-item">جاري تحميل الأخبار...</div>
+        </div>
+    </div>
+</div>`,
+        css: `.smart-news-ticker {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    padding: 20px;
+    color: white;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.ticker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.ticker-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.ticker-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.control-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.control-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.ticker-container {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    overflow: hidden;
+    position: relative;
+}
+
+.ticker-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.news-item {
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border-left: 3px solid #2ed573;
+    transition: all 0.3s ease;
+}
+
+.news-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.news-item.breaking {
+    border-left-color: #ff4757;
+    background: rgba(255, 71, 87, 0.1);
+}`,
+        author: 'النظام',
+        createdAt: new Date()
+    },
+    {
+        id: '105',
+        name: 'مواقيت الصلاة المتطورة',
+        description: 'عرض مواقيت الصلاة مع معلومات شاملة',
+        category: 'religious',
+        html: `<div class="advanced-prayer-times">
+    <div class="prayer-header">
+        <h3>مواقيت الصلاة</h3>
+        <div class="location">مكة المكرمة</div>
+    </div>
+    <div class="prayer-grid">
+        <div class="prayer-time">
+            <span class="prayer-name">الفجر</span>
+            <span class="prayer-hour">04:30 ص</span>
+        </div>
+        <div class="prayer-time">
+            <span class="prayer-name">الشروق</span>
+            <span class="prayer-hour">05:45 ص</span>
+        </div>
+        <div class="prayer-time">
+            <span class="prayer-name">الظهر</span>
+            <span class="prayer-hour">12:15 م</span>
+        </div>
+        <div class="prayer-time">
+            <span class="prayer-name">العصر</span>
+            <span class="prayer-hour">03:30 م</span>
+        </div>
+        <div class="prayer-time">
+            <span class="prayer-name">المغرب</span>
+            <span class="prayer-hour">06:45 م</span>
+        </div>
+        <div class="prayer-time">
+            <span class="prayer-name">العشاء</span>
+            <span class="prayer-hour">08:00 م</span>
+        </div>
+    </div>
+    <div class="prayer-meta">
+        <div class="meta-item">
+            <span>التاريخ الهجري</span>
+            <span>15 رمضان 1445</span>
+        </div>
+        <div class="meta-item">
+            <span>الصلاة القادمة</span>
+            <span>العصر - بعد 2 ساعة</span>
+        </div>
+    </div>
+</div>`,
+        css: `.advanced-prayer-times {
+    background: linear-gradient(135deg, #0c2461 0%, #1e3799 100%);
+    padding: 25px;
+    border-radius: 20px;
+    color: white;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.prayer-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.prayer-header h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.5rem;
+}
+
+.location {
+    opacity: 0.8;
+    font-size: 0.9rem;
+}
+
+.prayer-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.prayer-time {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.prayer-time:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+.prayer-name {
+    display: block;
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.prayer-hour {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.prayer-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding-top: 20px;
+}
+
+.meta-item {
+    text-align: center;
+}
+
+.meta-item span:first-child {
+    display: block;
+    font-size: 0.8rem;
+    opacity: 0.7;
+    margin-bottom: 5px;
+}
+
+.meta-item span:last-child {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+}`,
+        author: 'النظام',
+        createdAt: new Date()
+   
+    },
+    {    
+    
+   
+        id: '90',
+        name: 'تأثير الظل المتحرك',
+        description: 'ظل يتحرك مع تحرك العنصر',
+        category: 'effects',
+        html: '<div class="moving-shadow">عنصر بظل متحرك</div>',
+        css: `.moving-shadow {
+    background: #8B5CF6;
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    position: relative;
+}
+.moving-shadow::before {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 5%;
+    width: 90%;
+    height: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    filter: blur(10px);
+    transition: all 0.3s ease;
+    z-index: -1;
+}
+.moving-shadow:hover {
+    transform: translateY(-10px);
+}
+.moving-shadow:hover::before {
+    bottom: -15px;
+    filter: blur(15px);
+}`,
+        author: '',
+        createdAt: new Date()
+    }
+];
+
+    // Event Listeners
+    menuToggle.addEventListener('click', () => {
+        sidebar.classList.add('open');
+        blurOverlay.classList.add('active');
+    });
+
+    closeSidebar.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        blurOverlay.classList.remove('active');
+    });
+
+    blurOverlay.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        blurOverlay.classList.remove('active');
+    });
+
+    // إصلاح دالة إغلاق مودال التسجيل
+    function closeLoginModal() {
+        loginModal.style.display = 'none';
+    }
+
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = usernameInput.value.trim();
+        
+        if (!username) {
+            showToast('يرجى إدخال اسم المستخدم', 'error');
+            return;
+        }
+
+        try {
+            // Save username to localStorage
+            localStorage.setItem('username', username);
+            currentUser = username;
+            
+            // Check if user is admin
+            if (username === 'hamad') {
+                addButton.style.display = 'flex';
+            }
+            
+            // Close modal
+            loginModal.style.display = 'none';
+            
+            showToast('مرحباً بك ' + username + '!');
+            
+            // Load elements
+            await loadElements();
+            
+        } catch (error) {
+            console.error('خطأ في تسجيل الدخول:', error);
+            showToast('حدث خطأ في تسجيل الدخول', 'error');
+        }
+    });
+
+    addButton.addEventListener('click', () => {
+        uploadModal.style.display = 'flex';
+    });
+
+    closeUploadModal.addEventListener('click', () => {
+        uploadModal.style.display = 'none';
+    });
+
+    // Enhanced form submission with Telegram integration
+    elementForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const submitButton = elementForm.querySelector('button[type="submit"]');
+        const originalText = submitButton.innerHTML;
+        
+        try {
+            // Show loading state
+            submitButton.innerHTML = '<div class="loading-spinner"></div> جاري النشر...';
+            submitButton.disabled = true;
+            
+            // Get form data
+            const name = document.getElementById('elementName').value.trim();
+            const description = document.getElementById('elementDescription').value.trim();
+            const category = document.getElementById('elementCategory').value;
+            const html = document.getElementById('elementCode').value.trim();
+            const css = document.getElementById('elementCSS').value.trim();
+            
+            // Validate required fields
+            if (!name || !description || !category || !html || !css) {
+                throw new Error('جميع الحقول مطلوبة');
+            }
+            
+            // Validate HTML and CSS
+            if (html.length < 10) {
+                throw new Error('كود HTML قصير جداً');
+            }
+            
+            if (css.length < 10) {
+                throw new Error('كود CSS قصير جداً');
+            }
+            
+            console.log('📝 إنشاء عنصر جديد:', { name, category, author: currentUser });
+            
+            // Create new element with timestamp
+            const newElement = {
+                id: Date.now().toString(),
+                name: name,
+                description: description,
+                category: category,
+                html: html,
+                css: css,
+                author: currentUser || 'مجهول',
+                createdAt: new Date(),
+                views: 0,
+                likes: 0
+            };
+            
+            // Save to Telegram
+            await saveElementToTelegram(newElement);
+            
+            // Reset form
+            elementForm.reset();
+            
+            // Close modal
+            uploadModal.style.display = 'none';
+            
+            // Show success message
+            showToast('🎉 تم نشر العنصر بنجاح!');
+            
+            // Reload elements
+            await loadElements();
+            
+        } catch (error) {
+            console.error('❌ خطأ في إضافة العنصر:', error);
+            let errorMessage = 'حدث خطأ أثناء نشر العنصر';
+            
+            if (error.message) {
+                errorMessage = error.message;
+            }
+            
+            showToast(errorMessage, 'error');
+        } finally {
+            // Restore button state
+            submitButton.innerHTML = originalText;
+            submitButton.disabled = false;
+        }
+    });
+
+    searchInput.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase().trim();
+        const filtered = currentElements.filter(el => 
+            el.name.toLowerCase().includes(searchTerm) || 
+            el.description.toLowerCase().includes(searchTerm) ||
+            getCategoryName(el.category).toLowerCase().includes(searchTerm)
+        );
+        renderElements(filtered);
+    });
+
+    categoryLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            // Update active link
+            categoryLinks.forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+            
+            // Update current category
+            currentCategory = link.dataset.category;
+            
+            // Filter elements
+            const filtered = currentCategory === 'all' 
+                ? currentElements 
+                : currentElements.filter(el => el.category === currentCategory);
+            
+            renderElements(filtered);
+            
+            // Close sidebar
+            sidebar.classList.remove('open');
+            blurOverlay.classList.remove('active');
+        });
+    });
+
+    copyCodeButton.addEventListener('click', () => {
+        const codeToCopy = codeContent.querySelector('pre').innerText;
+        copyToClipboard(codeToCopy);
+    });
+
+    closeCodeModal.addEventListener('click', () => {
+        codeModal.style.display = 'none';
+    });
+
+    // Functions
+    function showLoginModal() {
+        loginModal.style.display = 'flex';
+    }
+
+    async function loadElements() {
+        try {
+            console.log('🔄 تحميل العناصر...');
+            
+            elementsGrid.innerHTML = `
+                <div style="text-align: center; grid-column: 1/-1; padding: 40px;">
+                    <div class="loading-spinner" style="width: 40px; height: 40px; margin: 0 auto 20px;"></div>
+                    <p>جاري تحميل العناصر...</p>
+                </div>
+            `;
+            
+            // Try to load from Telegram first
+            try {
+                const elementsFromTelegram = await loadElementsFromTelegram();
+                if (elementsFromTelegram && elementsFromTelegram.length > 0) {
+                    currentElements = elementsFromTelegram;
+                } else {
+                    // Fallback to sample elements
+                    currentElements = sampleElements;
+                }
+            } catch (error) {
+                console.error('خطأ في تحميل العناصر من Telegram:', error);
+                // Fallback to sample elements
+                currentElements = sampleElements;
+            }
+            
+            console.log(`✅ تم تحميل ${currentElements.length} عنصر`);
+            renderElements(currentElements);
+            
+        } catch (error) {
+            console.error('❌ خطأ في تحميل العناصر:', error);
+            let errorMessage = 'حدث خطأ أثناء تحميل العناصر';
+            
+            showToast(errorMessage, 'error');
+            elementsGrid.innerHTML = `
+                <div style="text-align: center; grid-column: 1/-1; padding: 40px;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 40px; margin-bottom: 20px; color: var(--danger);"></i>
+                    <p>${errorMessage}</p>
+                    <button class="btn btn-primary" onclick="loadElements()" style="margin-top: 15px;">
+                        <i class="fas fa-redo"></i> إعادة المحاولة
+                    </button>
+                </div>
+            `;
+        }
+    }
+
+// دالة لخلط العناصر عشوائياً (Fisher-Yates shuffle)
+function shuffleArray(array) {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+}
+
+// تعديل دالة renderElements لعرض العناصر بشكل عشوائي
+function renderElements(elements) {
+    elementsGrid.innerHTML = '';
+    
+    if (elements.length === 0) {
+        elementsGrid.innerHTML = `
+            <div style="text-align: center; grid-column: 1/-1; padding: 40px;">
+                <i class="fas fa-search" style="font-size: 40px; margin-bottom: 20px; opacity: 0.5;"></i>
+                <p>لا توجد عناصر لعرضها</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // خلط العناصر عشوائياً قبل العرض
+    const shuffledElements = shuffleArray(elements);
+    
+    shuffledElements.forEach(element => {
+        const card = document.createElement('div');
+        card.className = 'element-card';
+        
+        // Create preview with error handling
+        const preview = document.createElement('div');
+        preview.className = 'element-preview';
+        
+        try {
+            // Create a safe container for the preview
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = element.html;
+            
+            // Add styles safely
+            const style = document.createElement('style');
+            style.textContent = element.css;
+            tempDiv.appendChild(style);
+            
+            preview.appendChild(tempDiv);
+        } catch (error) {
+            console.error('خطأ في عرض العنصر:', error);
+            preview.innerHTML = '<p style="color: var(--danger);">خطأ في عرض العنصر</p>';
+        }
+        
+        // Create content
+        const content = document.createElement('div');
+        content.className = 'element-content';
+        
+        const deleteButton = currentUser === 'hamad' 
+            ? `<button class="btn btn-danger delete-element" data-id="${element.id}">
+                 <i class="fas fa-trash"></i> حذف
+               </button>` 
+            : '';
+        
+        content.innerHTML = `
+            <h3>${escapeHtml(element.name)}</h3>
+            <p>${escapeHtml(element.description)}</p>
+            <div class="element-tags">
+                <span class="tag">${getCategoryName(element.category)}</span>
+            </div>
+            <div class="element-actions">
+                <button class="btn btn-primary view-code" data-id="${element.id}">
+                    <i class="fas fa-eye"></i> عرض الكود
+                </button>
+                <button class="btn btn-outline copy-code" data-id="${element.id}">
+                    <i class="fas fa-copy"></i> نسخ الكود
+                </button>
+                ${deleteButton}
+            </div>
+        `;
+        
+        card.appendChild(preview);
+        card.appendChild(content);
+        elementsGrid.appendChild(card);
+    });
+    
+    // Add event listeners to the new buttons
+    document.querySelectorAll('.view-code').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const id = e.target.closest('button').dataset.id;
+            const element = currentElements.find(el => el.id === id);
+            if (element) showCode(element);
+        });
+    });
+    
+    document.querySelectorAll('.copy-code').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const id = e.target.closest('button').dataset.id;
+            const element = currentElements.find(el => el.id === id);
+            if (element) copyCode(element);
+        });
+    });
+    
+    // Add event listeners to delete buttons (only for admin)
+    if (currentUser === 'hamad') {
+        document.querySelectorAll('.delete-element').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const id = e.target.closest('button').dataset.id;
+                const element = currentElements.find(el => el.id === id);
+                
+                if (confirm(`هل أنت متأكد من حذف العنصر "${element.name}"؟`)) {
+                    try {
+                        currentElements = currentElements.filter(el => el.id !== id);
+                        showToast('تم حذف العنصر بنجاح!');
+                        renderElements(currentElements);
+                    } catch (error) {
+                        console.error('خطأ في حذف العنصر:', error);
+                        showToast('حدث خطأ أثناء حذف العنصر', 'error');
+                    }
+                }
+            });
+        });
+    }
+}
+
+    function getCategoryName(category) {
+        const categories = {
+            'buttons': 'أزرار',
+            'cards': 'بطاقات',
+            'loaders': 'أدوات التحميل',
+            'inputs': 'حقول الإدخال',
+            'nav': 'أشرطة التنقل',
+            'effects': 'تأثيرات'
+        };
+        return categories[category] || category;
+    }
+
+    function showCode(element) {
+        // Clear previous content
+        previewContainer.innerHTML = '';
+        codeContent.innerHTML = '';
+        
+        try {
+            // Create preview
+            const preview = document.createElement('div');
+            preview.innerHTML = element.html;
+            
+            // Add styles
+            const style = document.createElement('style');
+            style.textContent = element.css;
+            preview.appendChild(style);
+            
+            previewContainer.appendChild(preview);
+        } catch (error) {
+            previewContainer.innerHTML = '<p style="color: var(--danger);">خطأ في عرض المعاينة</p>';
+        }
+        
+        // Create code content
+        codeContent.innerHTML = `
+            <h3 style="margin-bottom: 15px; color: white;">${escapeHtml(element.name)}</h3>
+            <p style="margin-bottom: 20px; color: var(--text-primary);">${escapeHtml(element.description)}</p>
+            <h4 style="color: var(--accent); margin: 20px 0 10px;">HTML:</h4>
+            <pre>${escapeHtml(element.html)}</pre>
+            <h4 style="color: var(--accent); margin: 20px 0 10px;">CSS:</h4>
+            <pre>${escapeHtml(element.css)}</pre>
+        `;
+        
+        codeModal.style.display = 'flex';
+    }
+
+    function copyCode(element) {
+        const code = `<!-- ${element.name} -->\n${element.html}\n\n<style>\n${element.css}\n</style>`;
+        copyToClipboard(code);
+    }
+
+    function copyToClipboard(text) {
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('تم نسخ الكود بنجاح!');
+            }).catch(err => {
+                console.error('خطأ في نسخ الكود:', err);
+                fallbackCopyTextToClipboard(text);
+            });
+        } else {
+            fallbackCopyTextToClipboard(text);
+        }
+    }
+
+    function fallbackCopyTextToClipboard(text) {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.top = '0';
+        textArea.style.left = '0';
+        textArea.style.width = '2em';
+        textArea.style.height = '2em';
+        textArea.style.padding = '0';
+        textArea.style.border = 'none';
+        textArea.style.outline = 'none';
+        textArea.style.boxShadow = 'none';
+        textArea.style.background = 'transparent';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+            const successful = document.execCommand('copy');
+            const msg = successful ? 'تم نسخ الكود بنجاح!' : 'فشل نسخ الكود';
+            showToast(msg, successful ? 'success' : 'error');
+        } catch (err) {
+            console.error('خطأ في نسخ الكود:', err);
+            showToast('فشل نسخ الكود', 'error');
+        }
+        
+        document.body.removeChild(textArea);
+    }
+
+    function escapeHtml(unsafe) {
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function showToast(message, type = 'success') {
+        toast.textContent = message;
+        toast.className = `toast ${type}`;
+        toast.style.display = 'block';
+        
+        // Clear any existing timeout
+        if (toast.timeoutId) {
+            clearTimeout(toast.timeoutId);
+        }
+        
+        // Hide after 3 seconds
+        toast.timeoutId = setTimeout(() => {
+            toast.style.display = 'none';
+        }, 3000);
+    }
+
+    // Telegram integration functions
+    async function saveElementToTelegram(element) {
+        try {
+            // Format the element data for Telegram
+            const messageText = `
+عنصر جديد: ${element.name}
+التصنيف: ${getCategoryName(element.category)}
+الوصف: ${element.description}
+المطور: ${element.author}
+
+كود HTML:
+${element.html}
+
+كود CSS:
+${element.css}
+            `;
+            
+            // Send to Telegram channel
+            const response = await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    chat_id: TELEGRAM_CHANNEL,
+                    text: messageText,
+                    parse_mode: 'HTML'
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (!result.ok) {
+                throw new Error('فشل إرسال العنصر إلى Telegram');
+            }
+            
+            return result;
+        } catch (error) {
+            console.error('Error saving to Telegram:', error);
+            // Even if Telegram fails, we'll add the element locally
+            element.id = Date.now().toString();
+            currentElements.unshift(element);
+            return { ok: true };
+        }
+    }
+
+    async function loadElementsFromTelegram() {
+        try {
+            // In a real implementation, you would fetch messages from the channel
+            // and parse them into elements. For now, we'll return the sample elements
+            return sampleElements;
+        } catch (error) {
+            console.error('Error loading from Telegram:', error);
+            return sampleElements;
+        }
+    }
+
+    // Initialize the app
+    async function init() {
+        try {
+            // Check if user is logged in
+            const username = localStorage.getItem('username');
+            if (username) {
+                currentUser = username;
+                if (username === 'hamad') {
+                    addButton.style.display = 'flex';
+                }
+                loginModal.style.display = 'none';
+                
+                console.log('👤 المستخدم المسجل:', username);
+                
+                // Load elements
+                await loadElements();
+            } else {
+                showLoginModal();
+            }
+        } catch (error) {
+            console.error('خطأ في تهيئة التطبيق:', error);
+            showToast('حدث خطأ في تهيئة التطبيق', 'error');
+        }
+    }
+
+    // Start the app when DOM is loaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+
+    // Handle online/offline status
+    window.addEventListener('online', () => {
+        showToast('تم استعادة الاتصال بالإنترنت');
+        loadElements();
+    });
+
+    window.addEventListener('offline', () => {
+        showToast('انقطع الاتصال بالإنترنت', 'error');
+    });
+    
+// منع القائمة السياقية عند الضغط مطولاً
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+});
+
+// منع سلوك السحب والإفلات للنصوص والصور
+document.addEventListener('dragstart', function(e) {
+    e.preventDefault();
+});
+
+// منع اختيار النص عند الضغط مطولاً (اختياري)
+document.addEventListener('selectstart', function(e) {
+    e.preventDefault();
+});
+
+</script>
+</body>
+</html>
