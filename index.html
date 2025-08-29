@@ -872,12 +872,13 @@ body {
     position: relative;
     z-index: 2;
 }
-    </style>
+   
+     </style>
 </head>
 <body>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Blur Overlay -->
-    <div class="blur-overlay" id="blurOverlay"></div>
+<!-- Blur Overlay -->
+<div class="blur-overlay" id="blurOverlay" style="display: none;"></div>
 
 <!-- Header -->
 <header>
@@ -1060,6 +1061,7 @@ body {
     const sidebar = document.getElementById('sidebar');
     const closeSidebar = document.getElementById('closeSidebar');
     const blurOverlay = document.getElementById('blurOverlay');
+    blurOverlay.style.display = 'none';
     const loginModal = document.getElementById('loginModal');
     const loginForm = document.getElementById('loginForm');
     const usernameInput = document.getElementById('username');
@@ -4704,39 +4706,155 @@ input:checked + .slider:before {
     {
     
   
-  // 91 - زر مشاركة اجتماعي متحرك
-  
-    id: '91',
-    name: 'زر مشاركة اجتماعي متحرك',
-    description: 'زر عند الضغط عليه يظهر أيقونات المشاركة الاجتماعية مع أنيميشن',
-    category: 'interactive',
-    html: `
-<div class="social-share">
-  <button class="share-toggle">مشاركة</button>
-  <div class="share-icons">
-    <i class="fab fa-facebook-f"></i>
-    <i class="fab fa-twitter"></i>
-    <i class="fab fa-linkedin-in"></i>
-  </div>
+id: '95',
+name: 'زر مشاركة 3 أيقونات أفقية',
+description: 'زر مشاركة يظهر أسفل الزر 3 أيقونات أفقي',
+category: 'buttons',
+html: `
+<div class="social-share-container">
+    <input type="checkbox" id="share-toggle" class="share-toggle">
+    <label for="share-toggle" class="share-main-btn">
+        <i class="fas fa-share-alt"></i>
+        <span class="share-text">Share</span>
+    </label>
+    
+    <div class="social-icons">
+        <a href="#" class="social-icon facebook" data-name="Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" class="social-icon instagram" data-name="Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="#" class="social-icon telegram" data-name="Telegram"><i class="fab fa-telegram-plane"></i></a>
+    </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 `,
-    css: `
-.social-share { position: relative; display: inline-block; }
-.share-toggle { background:#1da1f2;color:white;padding:10px 20px;border:none;border-radius:5px;cursor:pointer;font-weight:bold;transition:0.3s; }
-.share-toggle:hover{background:#0d8ddb;}
-.share-icons { display:flex;gap:10px;position:absolute;top:50px;opacity:0;pointer-events:none;transition:opacity 0.3s ease; }
-.share-icons i { color:white;background:#343a40;padding:10px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;transition:0.3s;cursor:pointer; }
-.share-icons i:hover { transform:scale(1.2); background:#495057; }
-.social-share.active .share-icons { opacity:1; pointer-events:auto; }
+css: `
+.social-share-container {
+    display: inline-block;
+    text-align: center;
+}
+
+.share-toggle {
+    display: none;
+}
+
+.share-main-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #8B5CF6, #EC4899);
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+
+.share-main-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+}
+
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 10px;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.share-toggle:checked ~ .social-icons {
+    opacity: 1;
+    max-height: 100px;
+}
+
+.social-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    background: #333;
+    color: white;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    position: relative;
+    transform: scale(0);
+    opacity: 0;
+}
+
+.share-toggle:checked ~ .social-icons .social-icon {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.facebook { background: #1877F2; }
+.instagram { background: linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); }
+.telegram { background: #26A5E4; }
+
+.social-icon:hover {
+    transform: scale(1.2);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.social-icon::after {
+    content: attr(data-name);
+    position: absolute;
+    bottom: 55px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.social-icon:hover::after {
+    opacity: 1;
+}
+
+.social-icon:nth-child(1) { transition-delay: 0s; }
+.social-icon:nth-child(2) { transition-delay: 0.1s; }
+.social-icon:nth-child(3) { transition-delay: 0.2s; }
+
+.share-toggle:checked ~ .social-icons {
+    animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+    0% { transform: scale(0.5); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.share-toggle:checked + .share-main-btn {
+    background: linear-gradient(135deg, #7C3AED, #DB2777);
+    transform: scale(0.95);
+}
+
+@media (max-width: 480px) {
+    .social-icons {
+        gap: 8px;
+    }
+    .social-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+}
 `,
-    author: '',
-    createdAt: new Date(),
-    js: `
-document.querySelector('.share-toggle').addEventListener('click', function() {
-  this.parentElement.classList.toggle('active');
-});
-`
+author: '',
+createdAt: new Date()
   
   // 92 - بطاقة معلومات ديناميكية
       },
@@ -4887,24 +5005,7 @@ const interval = setInterval(() => {
   // 100 - نافذة إشعار تظهر وتختفي تلقائياً
       },
     {    
-    id: '100',
-    name: 'نافذة إشعار متحركة',
-    description: 'إشعار يظهر من أعلى ويختفي بعد ثواني',
-    category: 'notifications',
-    html: `<div class="toast">تمت العملية بنجاح!</div>`,
-    css: `
-.toast { position:fixed;top:-50px;right:20px;background:#1da1f2;color:white;padding:15px 25px;border-radius:8px;transition:0.5s; }
-.toast.show { top:20px; }
-`,
-    author: '',
-    createdAt: new Date(),
-    js: `
-const toast = document.querySelector('.toast');
-toast.classList.add('show');
-setTimeout(() => { toast.classList.remove('show'); }, 3000);
-` 
-    },
-    {   
+
     
      
         id: '101',
@@ -4923,11 +5024,6 @@ setTimeout(() => { toast.classList.remove('show'); }, 3000);
         <button class="share-option">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="#1877F2">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-            </svg>
-        </button>
-        <button class="share-option">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="#1DA1F2">
-                <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
             </svg>
         </button>
         <button class="share-option">
@@ -5446,10 +5542,1295 @@ setTimeout(() => { toast.classList.remove('show'); }, 3000);
         author: 'النظام',
         createdAt: new Date()
    
-    },
-    {    
+},
+{ 
+
+    id: '106',
+    name: 'زر تقدم دائري',
+    description: 'زر مع مؤشر تقدم دائري عند التحميل',
+    category: 'buttons',
+    html: `
+<button class="progress-button">
+    <span class="button-text">انقر هنا</span>
+    <div class="progress-circle"></div>
+</button>
+    `,
+    css: `
+.progress-button {
+    position: relative;
+    background: linear-gradient(135deg, #8B5CF6, #EC4899);
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.progress-button .button-text {
+    position: relative;
+    z-index: 2;
+}
+
+.progress-button .progress-circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.3s ease;
+    opacity: 0;
+}
+
+.progress-button.loading .progress-circle {
+    width: 100px;
+    height: 100px;
+    opacity: 1;
+}
+
+.progress-button.loading .button-text {
+    opacity: 0;
+}
+    `,
+    author: '',
+    createdAt: new Date()
+
+},
+{  
+ 
+
+    id: '109',
+    name: 'حقل بحث متقدم',
+    description: 'حقل بحث مع اقتراحات تلقائية',
+    category: 'inputs',
+    html: `
+<div class="advanced-search">
+    <input type="text" class="search-input" placeholder="ابحث...">
+    <div class="suggestions-box"></div>
+</div>
+    `,
+    css: `
+.advanced-search {
+    position: relative;
+    width: 300px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 20px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #8B5CF6;
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+}
+
+.suggestions-box {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(20, 20, 20, 0.95);
+    border-radius: 12px;
+    margin-top: 10px;
+    padding: 10px;
+    display: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.search-input:focus + .suggestions-box {
+    display: block;
+}
+    `,
+    author: '',
+    createdAt: new Date() 
+
+},
+{ 
+
+
     
-   
+    id: '110',
+    name: 'أيقونات تحكم دائرية',
+    description: 'مجموعة أيقونات تحكم دائرية بتأثيرات ضوئية',
+    category: 'buttons',
+    html: `
+<div class="icon-controls">
+    <div class="control-icon">
+        <i class="fas fa-play"></i>
+        <div class="icon-halo"></div>
+    </div>
+    
+    <div class="control-icon">
+        <i class="fas fa-pause"></i>
+        <div class="icon-halo"></div>
+    </div>
+    
+    <div class="control-icon">
+        <i class="fas fa-stop"></i>
+        <div class="icon-halo"></div>
+    </div>
+    
+    <div class="control-icon">
+        <i class="fas fa-cog"></i>
+        <div class="icon-halo"></div>
+    </div>
+    
+    <div class="control-icon">
+        <i class="fas fa-volume-up"></i>
+        <div class="icon-halo"></div>
+    </div>
+</div>
+    `,
+    css: `
+.icon-controls {
+    display: flex;
+    gap: 25px;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    background: rgba(20, 20, 20, 0.9);
+    border-radius: 25px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.control-icon {
+    position: relative;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3),
+                -5px -5px 15px rgba(255, 255, 255, 0.05);
+}
+
+.control-icon:hover {
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.4),
+                -8px -8px 20px rgba(255, 255, 255, 0.1);
+}
+
+.control-icon i {
+    font-size: 24px;
+    color: #8B5CF6;
+    transition: all 0.3s ease;
+    z-index: 2;
+}
+
+.control-icon:hover i {
+    color: #ffffff;
+    transform: scale(1.2);
+}
+
+.icon-halo {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    border-radius: 50%;
+    background: conic-gradient(
+        transparent,
+        rgba(139, 92, 246, 0.2),
+        rgba(236, 72, 153, 0.2),
+        transparent
+    );
+    animation: rotateHalo 3s linear infinite;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.control-icon:hover .icon-halo {
+    opacity: 1;
+}
+
+@keyframes rotateHalo {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* تأثيرات ضوئية مختلفة لكل أيقونة */
+.control-icon:nth-child(1):hover {
+    background: linear-gradient(145deg, #8B5CF6, #7C3AED);
+}
+
+.control-icon:nth-child(2):hover {
+    background: linear-gradient(145deg, #EC4899, #DB2777);
+}
+
+.control-icon:nth-child(3):hover {
+    background: linear-gradient(145deg, #10B981, #059669);
+}
+
+.control-icon:nth-child(4):hover {
+    background: linear-gradient(145deg, #F59E0B, #D97706);
+}
+
+.control-icon:nth-child(5):hover {
+    background: linear-gradient(145deg, #3B82F6, #1D4ED8);
+}
+
+/* تأثير النبض */
+.control-icon::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    background: inherit;
+    animation: pulseGlow 2s ease-in-out infinite;
+    opacity: 0;
+    z-index: 1;
+}
+
+.control-icon:hover::before {
+    animation: pulseGlow 1s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.5;
+        box-shadow: 0 0 20px currentColor;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+        box-shadow: 0 0 40px currentColor;
+    }
+}
+
+/* تأثير عند النقر */
+.control-icon:active {
+    transform: translateY(2px) scale(0.95);
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3),
+                -2px -2px 10px rgba(255, 255, 255, 0.05);
+}
+
+/* توهج خلفي */
+.control-icon::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+        circle at center,
+        rgba(139, 92, 246, 0.1) 0%,
+        transparent 70%
+    );
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.3s ease;
+    z-index: 0;
+}
+
+.control-icon:hover::after {
+    transform: translate(-50%, -50%) scale(1.5);
+}
+
+/* استجابة للشاشات الصغيرة */
+@media (max-width: 768px) {
+    .icon-controls {
+        flex-wrap: wrap;
+        gap: 20px;
+        padding: 30px;
+    }
+    
+    .control-icon {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .control-icon i {
+        font-size: 20px;
+    }
+}
+
+/* تأثير تحميل */
+.control-icon.loading i {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* حالة غير نشطة */
+.control-icon.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.control-icon.disabled:hover {
+    transform: none !important;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3),
+                -5px -5px 15px rgba(255, 255, 255, 0.05);
+}
+    `,
+    author: '',
+    createdAt: new Date()
+
+},
+{ 
+
+    id: '111',
+    name: 'تأثير موجي متقدم',
+    description: 'تأثير موجي سلس مع ألوان متدرجة',
+    category: 'effects',
+    html: '<div class="wave-effect"></div>',
+    css: `
+.wave-effect {
+    position: relative;
+    width: 300px;
+    height: 100px;
+    overflow: hidden;
+}
+
+.wave-effect:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(139, 92, 246, 0.4),
+        rgba(236, 72, 153, 0.4),
+        transparent
+    );
+    animation: wave-flow 2s linear infinite;
+}
+
+@keyframes wave-flow {
+    0% { transform: translateX(-50%); }
+    100% { transform: translateX(0%); }
+}
+    `,
+    author: '',
+    createdAt: new Date()
+
+},
+{ 
+
+    id: '113',
+    name: 'بطاقة الإحصائيات الحية',
+    description: 'بطاقة تعرض إحصائيات بتأثيرات متحركة',
+    category: 'cards',
+    html: `
+<div class="live-stats-card">
+    <h3>الإحصائيات الحية</h3>
+    <div class="stats-grid">
+        <div class="stat-item">
+            <div class="stat-value" data-value="1500">1500</div>
+            <div class="stat-label">زائر</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" data-value="350">350</div>
+            <div class="stat-label">طلب</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" data-value="95">95%</div>
+            <div class="stat-label">رضا</div>
+        </div>
+    </div>
+</div>
+    `,
+    css: `
+.live-stats-card {
+    background: rgba(20, 20, 20, 0.8);
+    padding: 25px;
+    border-radius: 15px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    animation: card-pulse 3s ease-in-out infinite;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.stat-item {
+    padding: 15px;
+    background: rgba(139, 92, 246, 0.1);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+    background: rgba(139, 92, 246, 0.2);
+    transform: translateY(-2px);
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: bold;
+    color: #8B5CF6;
+    margin-bottom: 5px;
+    animation: count-pulse 2s ease-in-out infinite;
+}
+
+.stat-label {
+    color: #e0e0e0;
+    font-size: 14px;
+}
+
+@keyframes card-pulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(139, 92, 246, 0.1); }
+    50% { transform: scale(1.02); box-shadow: 0 0 30px rgba(139, 92, 246, 0.2); }
+}
+
+@keyframes count-pulse {
+    0%, 100% { 
+        transform: scale(1);
+        text-shadow: 0 0 5px rgba(139, 92, 246, 0.5);
+    }
+    50% { 
+        transform: scale(1.1);
+        text-shadow: 0 0 15px rgba(139, 92, 246, 0.8);
+    }
+}
+
+/* تأثيرات إضافية */
+.stat-value::after {
+    content: '';
+    display: block;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #8B5CF6, transparent);
+    margin: 5px auto 0;
+    animation: line-grow 2s ease-in-out infinite;
+}
+
+@keyframes line-grow {
+    0%, 100% { width: 0; opacity: 0; }
+    50% { width: 50px; opacity: 1; }
+}
+
+/* تأثير توهج خفيف */
+.stat-item::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #8B5CF6, #EC4899, #8B5CF6);
+    border-radius: 12px;
+    z-index: -1;
+    opacity: 0;
+    animation: glow-rotate 4s linear infinite;
+}
+
+@keyframes glow-rotate {
+    0% { 
+        opacity: 0;
+        filter: hue-rotate(0deg);
+    }
+    50% { 
+        opacity: 0.1;
+        filter: hue-rotate(180deg);
+    }
+    100% { 
+        opacity: 0;
+        filter: hue-rotate(360deg);
+    }
+}
+    `,
+    author: '',
+    createdAt: new Date()
+
+},
+{ 
+
+
+    id: '114',
+    name: 'مؤشر التقدم الدائري',
+    description: 'مؤشر تقدم دائري متحرك بدون JavaScript',
+    category: 'loaders',
+    html: `
+<div class="circular-progress-container">
+    <div class="circular-progress" style="--progress: 75">
+        <div class="progress-value">75%</div>
+    </div>
+</div>
+    `,
+    css: `
+.circular-progress-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.circular-progress {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: conic-gradient(
+        #8B5CF6 calc(var(--progress) * 3.6deg),
+        rgba(255, 255, 255, 0.1) 0deg
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: progress-rotate 2s ease-in-out infinite;
+}
+
+.circular-progress::before {
+    content: '';
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(20, 20, 20, 0.9);
+}
+
+.progress-value {
+    position: relative;
+    font-size: 18px;
+    font-weight: bold;
+    color: #8B5CF6;
+    animation: value-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes progress-rotate {
+    0%, 100% { 
+        transform: rotate(0deg);
+        box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+    }
+    50% { 
+        transform: rotate(180deg);
+        box-shadow: 0 0 40px rgba(139, 92, 246, 0.6);
+    }
+}
+
+@keyframes value-pulse {
+    0%, 100% { 
+        transform: scale(1);
+        text-shadow: 0 0 5px rgba(139, 92, 246, 0.5);
+    }
+    50% { 
+        transform: scale(1.1);
+        text-shadow: 0 0 15px rgba(139, 92, 246, 0.8);
+    }
+}
+
+/* تأثير توهج إضافي */
+.circular-progress::after {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #8B5CF6, #EC4899, #8B5CF6);
+    z-index: -1;
+    opacity: 0;
+    animation: glow-pulse 3s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+    0%, 100% { 
+        opacity: 0;
+        filter: hue-rotate(0deg);
+    }
+    50% { 
+        opacity: 0.3;
+        filter: hue-rotate(180deg);
+    }
+}
+
+/* تحريك التدرج اللوني */
+.circular-progress {
+    background: conic-gradient(
+        #8B5CF6 calc(var(--progress) * 3.6deg),
+        rgba(255, 255, 255, 0.1) 0deg
+    );
+    animation: 
+        progress-rotate 2s ease-in-out infinite,
+        gradient-shift 4s ease-in-out infinite;
+}
+
+@keyframes gradient-shift {
+    0%, 100% { 
+        filter: hue-rotate(0deg);
+    }
+    50% { 
+        filter: hue-rotate(90deg);
+    }
+}
+    `,
+    author: '',
+    createdAt: new Date()
+},
+{ 
+
+
+    id: '115',
+    name: 'مجموعة أزرار الاختيار',
+    description: 'مجموعة أزرار للاختيار من متعدد باستخدام CSS فقط',
+    category: 'inputs',
+    html: `
+<div class="button-group">
+    <input type="radio" id="option1" name="button-group" class="group-input" checked>
+    <label for="option1" class="group-btn">الخيار 1</label>
+    
+    <input type="radio" id="option2" name="button-group" class="group-input">
+    <label for="option2" class="group-btn">الخيار 2</label>
+    
+    <input type="radio" id="option3" name="button-group" class="group-input">
+    <label for="option3" class="group-btn">الخيار 3</label>
+</div>
+    `,
+    css: `
+.button-group {
+    display: flex;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+}
+
+.group-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.group-btn {
+    flex: 1;
+    padding: 10px 15px;
+    border: none;
+    background: transparent;
+    color: #e0e0e0;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    text-align: center;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.group-input:checked + .group-btn {
+    background: #8B5CF6;
+    color: white;
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+}
+
+.group-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.group-input:focus + .group-btn {
+    outline: 2px solid rgba(139, 92, 246, 0.5);
+    outline-offset: 2px;
+}
+
+/* تأثيرات إضافية للتفاعل */
+.group-btn:active {
+    transform: scale(0.95);
+}
+
+/* مؤشر للزر النشط */
+.group-input:checked + .group-btn::before {
+    content: '✓';
+    margin-left: 5px;
+    font-weight: bold;
+}
+
+/* تأثير انتقال سلس للألوان */
+.group-btn {
+    background: transparent;
+    color: #e0e0e0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.group-input:checked + .group-btn {
+    background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* تأثير عند التمرير */
+.group-btn:hover:not(.group-input:checked + .group-btn) {
+    background: rgba(255, 255, 255, 0.08);
+    color: #8B5CF6;
+}
+
+/* تحسين المظهر على الأجهزة المحمولة */
+@media (max-width: 480px) {
+    .button-group {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .group-btn {
+        padding: 12px 15px;
+    }
+}
+    `,
+    author: '',
+    createdAt: new Date()
+},
+{ 
+    id: '119',
+    name: 'بطاقة فريق متميزة',
+    description: 'بطاقة لعرض أعضاء الفريق بتصميم متميز',
+    category: 'cards',
+    html: `
+<div class="premium-team-card">
+    <div class="card-header">
+        <img src="https://via.placeholder.com/100x100/8B5CF6/FFFFFF?text=ص" alt="Team Member">
+        <div class="social-links">
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+            <a href="#"><i class="fab fa-github"></i></a>
+        </div>
+    </div>
+    <div class="card-body">
+        <h3>أحمد محمد</h3>
+        <p class="role">مطور واجهات أمامية</p>
+        <p class="bio">مطور واجهات مستخدم محترف مع أكثر من 5 سنوات خبرة في مجال التطوير.</p>
+    </div>
+    <div class="card-footer">
+        <div class="skill-tags">
+            <span>HTML</span>
+            <span>CSS</span>
+            <span>JavaScript</span>
+        </div>
+    </div>
+</div>
+    `,
+    css: `
+.premium-team-card {
+    background: rgba(20, 20, 20, 0.8);
+    border-radius: 20px;
+    padding: 25px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.premium-team-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(139, 92, 246, 0.2);
+}
+
+.card-header {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.card-header img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #8B5CF6;
+}
+
+.social-links {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    background: rgba(20, 20, 20, 0.9);
+    padding: 8px 15px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.social-links a {
+    color: #e0e0e0;
+    transition: color 0.3s ease;
+}
+
+.social-links a:hover {
+    color: #8B5CF6;
+}
+
+.card-body h3 {
+    color: white;
+    margin-bottom: 5px;
+}
+
+.role {
+    color: #8B5CF6;
+    margin-bottom: 15px;
+    font-weight: 500;
+}
+
+.bio {
+    color: #e0e0e0;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.skill-tags {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.skill-tags span {
+    background: rgba(139, 92, 246, 0.2);
+    color: #8B5CF6;
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+}
+    `,
+    author: '',
+    createdAt: new Date()
+
+},
+{ 
+    id: '120',
+    name: 'مؤشر التقدم المتعدد',
+    description: 'مؤشر تقدم متعدد المراحل باستخدام CSS فقط',
+    category: 'loaders',
+    html: `
+<div class="multi-step-progress">
+    <div class="progress-steps">
+        <div class="step active" data-step="1">1</div>
+        <div class="step" data-step="2">2</div>
+        <div class="step" data-step="3">3</div>
+        <div class="step" data-step="4">4</div>
+    </div>
+    <div class="progress-bar">
+        <div class="progress-fill" data-progress="25%"></div>
+    </div>
+</div>
+    `,
+    css: `
+.multi-step-progress {
+    width: 300px;
+    position: relative;
+}
+
+.progress-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+.step {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #e0e0e0;
+    font-weight: bold;
+    position: relative;
+    z-index: 2;
+    transition: all 0.3s ease;
+}
+
+.step.active {
+    background: #8B5CF6;
+    border-color: #8B5CF6;
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+.progress-bar {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+    top: -18px;
+    z-index: 1;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #8B5CF6, #EC4899);
+    border-radius: 3px;
+    width: 25%;
+    animation: progress-animation 4s ease-in-out infinite;
+}
+
+@keyframes progress-animation {
+    0% { width: 25%; }
+    25% { width: 50%; }
+    50% { width: 75%; }
+    75% { width: 100%; }
+    100% { width: 25%; }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* تأثيرات hover للخطوات */
+.step:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}
+
+/* مؤشر التقدم المتحرك */
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 20px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(300%); }
+}
+
+/* تأثير إضاءة للخطوات النشطة */
+.step.active::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    border-radius: 50%;
+    background: rgba(139, 92, 246, 0.2);
+    animation: glow 2s infinite;
+}
+
+@keyframes glow {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 0.8; }
+}
+    `,
+    author: '',
+    createdAt: new Date()
+},
+{ 
+
+    id: '118',
+    name: 'زر التحميل المتدرج',
+    description: 'زر يظهر تقدم التحميل بشكل متدرج',
+    category: 'buttons',
+    html: `
+<button class="gradient-load-btn">
+    <span class="btn-text">تحميل الملف</span>
+    <div class="load-progress"></div>
+</button>
+    `,
+    css: `
+.gradient-load-btn {
+    position: relative;
+    background: linear-gradient(135deg, #8B5CF6, #EC4899);
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.load-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: linear-gradient(135deg, #7C3AED, #DB2777);
+    width: 0%;
+    transition: width 0.3s ease;
+    z-index: 1;
+}
+
+.btn-text {
+    position: relative;
+    z-index: 2;
+}
+
+.gradient-load-btn.loading .btn-text {
+    color: transparent;
+}
+
+.gradient-load-btn.loading:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid transparent;
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    z-index: 2;
+}
+    `,
+    author: '',
+    createdAt: new Date()
+
+},
+{ 
+
+  id: '117',
+    name: 'تأثير الكتابة الآلية',
+    description: 'نص يكتب نفسه تلقائياً باستخدام CSS فقط',
+    category: 'effects',
+    html: `
+<div class="auto-type-container">
+    <span class="auto-type-text">مرحباً بك في الموقع</span>
+</div>
+    `,
+    css: `
+.auto-type-container {
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    min-height: 40px;
+}
+
+.auto-type-text {
+    display: inline-block;
+    overflow: hidden;
+    border-right: 2px solid #8B5CF6;
+    white-space: nowrap;
+    animation: typing 3s steps(20, end) infinite, blink-cursor 0.8s step-end infinite;
+}
+
+@keyframes typing {
+    0% { width: 0; }
+    50% { width: 100%; }
+    80% { width: 100%; }
+    100% { width: 0; }
+}
+
+@keyframes blink-cursor {
+    0%, 50% { border-color: #8B5CF6; }
+    51%, 100% { border-color: transparent; }
+}
+    `,
+    author: '',
+    createdAt: new Date()
+
+},
+{ 
+
+    id: '112',
+    name: 'زر الوسائط المتعددة',
+    description: 'زر للتحكم في الوسائط مع أيقونات متغيرة',
+    category: 'buttons',
+    html: `
+<button class="media-control-btn">
+    <svg class="play-icon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M8 5v14l11-7z"/>
+    </svg>
+    <svg class="pause-icon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style="display: none;">
+        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+    </svg>
+</button>
+    `,
+    css: `
+.media-control-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8B5CF6, #EC4899);
+    border: none;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+
+.media-control-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+}
+
+.media-control-btn.playing .play-icon {
+    display: none;
+}
+
+.media-control-btn.playing .pause-icon {
+    display: block;
+}
+    `,
+    author: '',
+    createdAt: new Date()
+
+},
+{ 
+
+
+    id: '108',
+    name: 'مؤشر تحميل ثلاثي الأبعاد',
+    description: 'مؤشر تحميل بتأثير ثلاثي الأبعاد',
+    category: 'loaders',
+    html: '<div class="cube-loader"></div>',
+    css: `
+.cube-loader {
+    width: 40px;
+    height: 40px;
+    position: relative;
+    transform-style: preserve-3d;
+    animation: cube-rotate 1.5s infinite linear;
+}
+
+.cube-loader:before, .cube-loader:after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(139, 92, 246, 0.6);
+    border: 2px solid #8B5CF6;
+}
+
+.cube-loader:before {
+    transform: rotateX(90deg) translateZ(20px);
+}
+
+.cube-loader:after {
+    transform: rotateY(90deg) translateZ(20px);
+}
+
+@keyframes cube-rotate {
+    0% { transform: rotateX(0) rotateY(0); }
+    100% { transform: rotateX(360deg) rotateY(360deg); }
+}
+    `,
+    author: '',
+    createdAt: new Date()
+
+           
+     },
+{ 
+     
+    id: '107',
+    name: 'بطاقة منتج مقلوبة',
+    description: 'بطاقة منتج بتأثير قلب عند التمرير',
+    category: 'cards',
+    html: `
+<div class="flip-product-card">
+    <div class="flip-card-inner">
+        <div class="flip-card-front">
+            <img src="https://via.placeholder.com/250x200/8B5CF6/FFFFFF?text=المنتج" alt="Product">
+            <h3>اسم المنتج</h3>
+            <p>50 ر.س</p>
+        </div>
+        <div class="flip-card-back">
+            <h3>تفاصيل المنتج</h3>
+            <p>وصف مختصر للمنتج مع ميزات رئيسية</p>
+            <button class="buy-btn">شراء الآن</button>
+        </div>
+    </div>
+</div>
+    `,
+    css: `
+.flip-product-card {
+    width: 250px;
+    height: 300px;
+    perspective: 1000px;
+}
+
+.flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
+
+.flip-product-card:hover .flip-card-inner {
+    transform: rotateY(180deg);
+}
+
+.flip-card-front, .flip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 12px;
+    padding: 20px;
+    background: rgba(20, 20, 20, 0.8);
+}
+
+.flip-card-back {
+    transform: rotateY(180deg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+}
+
+.flip-card-front img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.buy-btn {
+    background: #8B5CF6;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 15px;
+}
+    `,
+    author: '',
+    createdAt: new Date()
+     },
+{ 
         id: '90',
         name: 'تأثير الظل المتحرك',
         description: 'ظل يتحرك مع تحرك العنصر',
@@ -5899,6 +7280,9 @@ function renderElements(elements) {
     }
 
     function copyToClipboard(text) {
+    // منع ظهور الـ overlay عند النسخ
+    document.getElementById('blurOverlay').style.display = 'none';
+
         if (navigator.clipboard && window.isSecureContext) {
             navigator.clipboard.writeText(text).then(() => {
                 showToast('تم نسخ الكود بنجاح!');
